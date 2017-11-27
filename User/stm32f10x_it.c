@@ -26,16 +26,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f10x_it.h"
 #include <includes.h>
+#include <string.h>
 #include "bsp_usart1.h"
-//#include "bsp_exti.h"
 
 
 
-extern  uint8_t   Mem_Flag;
-extern  uint8_t   Rx_Cnt;
+
+
 extern  OS_MEM    Mem;
-extern  uint32_t *Mem_blk;
-
+uint32_t *Mem_blk;
+u8 Re_Temp[20]={0};	
+u8 Re_Cnt=0;		
+extern  OS_TCB   AppTaskUsartPendTCB;
 
 
 /** @addtogroup STM32F10x_StdPeriph_Template
@@ -171,29 +173,55 @@ void SysTick_Handler(void)
   * @brief  USART 中断服务函数
   * @param  无
   * @retval 无
-  */	
+  */
+
 void USART1_IRQHandler(void)
 {
 	OS_ERR err;
 	
   uint8_t  ch;
+	uint8_t i=0;
 	
 	OSIntEnter(); 	                                     //进入中断
-	
-		/* 从内存分区 mem 获取一个内存块 */
-	if(!Mem_Flag)
-	{
-  	Mem_blk = OSMemGet(
-		                   (OS_MEM *)&Mem,
-	  									 (OS_ERR *)&err
-		                  );
-		Mem_Flag=1;
-	}
 		
 	if(USART_GetITStatus(USART1,USART_IT_RXNE)!=RESET )
 	{
 		ch = USART_ReceiveData(USART1);     //获取接收到的数据
-    *(Mem_blk+Rx_Cnt++)=ch;							 
+		Re_Temp[Re_Cnt++]=ch;
+		
+		if(Re_Temp[0]==0xad)
+		{
+			if(Re_Cnt == (Re_Temp[2]+4))
+			{
+				Mem_blk = OSMemGet((OS_MEM *)&Mem,
+													 (OS_ERR *)&err);
+				
+				for(i=0;i<Re_Cnt;i++)
+				{
+				*(Mem_blk+i)=*(Re_Temp+i);				
+				}
+				
+				/* 发布任务消息到任务 AppTaskUsart */
+			  OSTaskQPost ((OS_TCB      *)&AppTaskUsartPendTCB,      //目标任务的控制块
+									   (void        *)Mem_blk,             //消息内容的首地址
+										 (OS_MSG_SIZE  )Re_Cnt,                     //消息长度
+										 (OS_OPT       )OS_OPT_POST_FIFO,      //发布到任务消息队列的入口端
+										 (OS_ERR      *)&err);                 //返回错误类型
+										 
+				memset(Re_Temp,0,20);
+				Re_Cnt=0;			
+			}
+			else if(Re_Cnt > (Re_Temp[2]+4))
+			{
+			 memset(Re_Temp,0,20);
+			 Re_Cnt=0;								
+			}		 		
+		}
+ 		else if(Re_Temp[0]!=0xad)
+		{
+		 memset(Re_Temp,0,20);
+		 Re_Cnt=0;	
+		}				 
 	}
 	
 	OSIntExit();	                                       //退出中断	
