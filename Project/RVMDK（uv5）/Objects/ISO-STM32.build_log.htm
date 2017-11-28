@@ -55,29 +55,11 @@ compiling stm32f10x_usart.c...
 compiling stm32f10x_wwdg.c...
 compiling stm32f10x_it.c...
 compiling app.c...
-..\..\User\APP\app.c(455): warning:  #177-D: variable "i" was declared but never referenced
-        uint8_t i=0;
-..\..\User\APP\app.c(457): warning:  #177-D: variable "lc" was declared but never referenced
-    uint8_t lc[20]={0};
-..\..\User\APP\app.c(73): warning:  #177-D: variable "AppTaskUsartCheckTCB" was declared but never referenced
-  static  OS_TCB   AppTaskUsartCheckTCB;
-..\..\User\APP\app.c(75): warning:  #177-D: variable "AppTaskPollTCB" was declared but never referenced
-  static  OS_TCB   AppTaskPollTCB;
-..\..\User\APP\app.c(76): warning:  #177-D: variable "AppTaskPollPendTCB" was declared but never referenced
-  static  OS_TCB   AppTaskPollPendTCB;
-..\..\User\APP\app.c(89): warning:  #177-D: variable "AppTaskUsartCheckStk" was declared but never referenced
-  static  CPU_STK  AppTaskUsartCheckStk[ APP_TASK_USART_CHECK_SIZE ];
-..\..\User\APP\app.c(91): warning:  #177-D: variable "AppTaskPollStk" was declared but never referenced
-  static  CPU_STK  AppTaskPollStk[ APP_TASK_POLL_SIZE ];
-..\..\User\APP\app.c(92): warning:  #177-D: variable "AppTaskPollPendStk" was declared but never referenced
-  static  CPU_STK  AppTaskPollPendStk[ APP_TASK_POLL_PEND_SIZE ];
-..\..\User\APP\app.c(410): warning:  #177-D: function "AppTaskUsartCheck" was declared but never referenced
-  static  void  AppTaskUsartCheck ( void * p_arg )
-..\..\User\APP\app.c(109): warning:  #177-D: function "AppTaskPoll" was declared but never referenced
-  static  void  AppTaskPoll (void *p_arg);
-..\..\User\APP\app.c(110): warning:  #177-D: function "AppTaskPollPend" was declared but never referenced
-  static  void  AppTaskPollPend (void *p_arg);
-..\..\User\APP\app.c: 11 warnings, 0 errors
+..\..\User\APP\app.c(406): warning:  #550-D: variable "Check_Temp" was set but never used
+        uint32_t Check_Temp[20]={0};
+..\..\User\APP\app.c(408): warning:  #177-D: variable "tt" was declared but never referenced
+        uint8_t tt[4]={0};
+..\..\User\APP\app.c: 2 warnings, 0 errors
 compiling os_app_hooks.c...
 compiling bsp.c...
 compiling bsp_led.c...
@@ -112,8 +94,8 @@ compiling os_var.c...
 assembling os_cpu_a.s...
 compiling os_cpu_c.c...
 linking...
-Program Size: Code=23016 RO-data=864 RW-data=276 ZI-data=45540  
-".\Objects\ISO-STM32.axf" - 0 Error(s), 11 Warning(s).
+Program Size: Code=22852 RO-data=864 RW-data=276 ZI-data=38996  
+".\Objects\ISO-STM32.axf" - 0 Error(s), 2 Warning(s).
 
 <h2>Collection of Component include folders:</h2>
   C:\Users\Moonlight\Desktop\Polling\Project\RVMDK£¨uv5£©\RTE

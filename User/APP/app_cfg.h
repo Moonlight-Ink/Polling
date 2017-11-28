@@ -49,13 +49,13 @@
 
 #define  APP_TASK_START_PRIO                        2            //任务优先级
 
-#define  APP_TASK_USART_CHECK_PRIO                  3
+#define  APP_TASK_CHECK_DEVICE_PRIO                  3
 #define  APP_TASK_USART_PEND_PRIO                   3
-#define  APP_TASK_POLL_PRIO                        3
-#define  APP_TASK_POLL_PEND_PRIO                   20
-#define  APP_TASK_POST_PRIO                         3
-#define  APP_TASK_PEND_PRIO                         3
-#define  APP_TASK_TMR_PRIO                          3
+//#define  APP_TASK_POLL_PRIO                        3
+//#define  APP_TASK_POLL_PEND_PRIO                   20
+//#define  APP_TASK_POST_PRIO                         3
+//#define  APP_TASK_PEND_PRIO                         3
+//#define  APP_TASK_TMR_PRIO                          3
 
 /*
 *********************************************************************************************************
@@ -66,10 +66,10 @@
 
 #define  APP_TASK_START_STK_SIZE                    128          //任务堆栈空间（单位：sizeof(CPU_STK)）
 
-#define  APP_TASK_USART_CHECK_SIZE                  512
+#define  APP_TASK_CHECK_DEVICE_SIZE                  512
 #define  APP_TASK_USART_PEND_SIZE                   512
-#define  APP_TASK_POLL_SIZE                   512
-#define  APP_TASK_POLL_PEND_SIZE                     512
+//#define  APP_TASK_POLL_SIZE                   512
+//#define  APP_TASK_POLL_PEND_SIZE                     512
 //#define  APP_TASK_POST_STK_SIZE                     512
 //#define  APP_TASK_PEND_STK_SIZE                     512
 //#define  APP_TASK_TMR_STK_SIZE                      512

@@ -37,7 +37,7 @@ extern  OS_MEM    Mem;
 uint32_t *Mem_blk;
 u8 Re_Temp[20]={0};	
 u8 Re_Cnt=0;		
-extern  OS_TCB   AppTaskUsartPendTCB;
+extern  OS_TCB   AppTaskCheckDeviceTCB;
 
 
 /** @addtogroup STM32F10x_StdPeriph_Template
@@ -193,23 +193,26 @@ void USART1_IRQHandler(void)
 		{
 			if(Re_Cnt == (Re_Temp[2]+4))
 			{
-				Mem_blk = OSMemGet((OS_MEM *)&Mem,
-													 (OS_ERR *)&err);
-				
-				for(i=0;i<Re_Cnt;i++)
+				if(Re_Temp[4]==0x20)
 				{
-				*(Mem_blk+i)=*(Re_Temp+i);				
-				}
 				
-				/* 发布任务消息到任务 AppTaskUsart */
-			  OSTaskQPost ((OS_TCB      *)&AppTaskUsartPendTCB,      //目标任务的控制块
-									   (void        *)Mem_blk,             //消息内容的首地址
-										 (OS_MSG_SIZE  )Re_Cnt,                     //消息长度
-										 (OS_OPT       )OS_OPT_POST_FIFO,      //发布到任务消息队列的入口端
-										 (OS_ERR      *)&err);                 //返回错误类型
-										 
+					Mem_blk = OSMemGet((OS_MEM *)&Mem,
+														 (OS_ERR *)&err);
+					
+					for(i=0;i<Re_Cnt;i++)
+					{
+					*(Mem_blk+i)=*(Re_Temp+i);				
+					}
+					
+					/* 发布任务消息到任务 AppTaskUsart */
+					OSTaskQPost ((OS_TCB      *)&AppTaskCheckDeviceTCB,      //目标任务的控制块
+											 (void        *)Mem_blk,             //消息内容的首地址
+											 (OS_MSG_SIZE  )Re_Cnt,                     //消息长度
+											 (OS_OPT       )OS_OPT_POST_FIFO,      //发布到任务消息队列的入口端
+											 (OS_ERR      *)&err);                 //返回错误类型
+				 }						 
 				memset(Re_Temp,0,20);
-				Re_Cnt=0;			
+				Re_Cnt=0;	
 			}
 			else if(Re_Cnt > (Re_Temp[2]+4))
 			{
