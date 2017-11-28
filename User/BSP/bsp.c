@@ -165,7 +165,7 @@ void  BSP_Init (void)
 	LED_Init ();        //初始化 LED
 	
 	USARTx_Config ();   //初始化 USART1
-	
+	Head=NodeCreat();			
 }
 
 

@@ -49,6 +49,7 @@
 .\objects\bsp_key.o: ..\..\User\APP\app_cfg.h
 .\objects\bsp_key.o: ..\..\User\BSP\led\bsp_led.h
 .\objects\bsp_key.o: ..\..\User\BSP\usart\bsp_usart1.h
+.\objects\bsp_key.o: ..\..\User\BSP\List\bsp_list.h
 .\objects\bsp_key.o: ..\..\User\uCOS-III\Source\os.h
 .\objects\bsp_key.o: ..\..\User\APP\os_cfg.h
 .\objects\bsp_key.o: ..\..\User\uCOS-III\Source\os_type.h

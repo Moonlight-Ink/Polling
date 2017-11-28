@@ -32,6 +32,7 @@
 ".\objects\bsp_led.o"
 ".\objects\bsp_usart1.o"
 ".\objects\bsp_key.o"
+".\objects\bsp_list.o"
 ".\objects\cpu_core.o"
 ".\objects\cpu_a.o"
 ".\objects\cpu_c.o"

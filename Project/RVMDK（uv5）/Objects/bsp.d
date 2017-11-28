@@ -45,3 +45,4 @@
 .\objects\bsp.o: ..\..\User\BSP\led\bsp_led.h
 .\objects\bsp.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\bsp.o: ..\..\User\BSP\Key\bsp_key.h
+.\objects\bsp.o: ..\..\User\BSP\List\bsp_list.h

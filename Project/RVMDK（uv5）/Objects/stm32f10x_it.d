@@ -50,6 +50,7 @@
 .\objects\stm32f10x_it.o: ..\..\User\BSP\led\bsp_led.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\Key\bsp_key.h
+.\objects\stm32f10x_it.o: ..\..\User\BSP\List\bsp_list.h
 .\objects\stm32f10x_it.o: ..\..\User\uCOS-III\Source\os.h
 .\objects\stm32f10x_it.o: ..\..\User\APP\os_cfg.h
 .\objects\stm32f10x_it.o: ..\..\User\uCOS-III\Source\os_type.h

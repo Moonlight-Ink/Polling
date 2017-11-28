@@ -44,12 +44,14 @@
 *                                            LOCAL DEFINES
 *********************************************************************************************************
 */
+OS_MUTEX List;                         //ÉùÃ÷»¥³âĞÅºÅÁ¿
 OS_SEM  SemOfPoll;
 OS_MEM  Mem;                    //ÉùÃ÷ÄÚ´æ¹ÜÀí¶ÔÏó
 
 uint8_t Array [ 3 ] [ 100 ];   //ÉùÃ÷ÄÚ´æ·ÖÇø´óĞ¡
 uint8_t Rx_Cnt=0;
 uint8_t Rx_Temp[20]={0};
+Node *Head;
 
 /*
 *********************************************************************************************************
@@ -59,8 +61,9 @@ uint8_t Rx_Temp[20]={0};
 
 static  OS_TCB   AppTaskStartTCB;    //ÈÎÎñ¿ØÖÆ¿é
 
-  OS_TCB   AppTaskCheckDeviceTCB;
-  OS_TCB   AppTaskUsartPendTCB;
+       OS_TCB AppTaskCheckDeviceTCB;
+static OS_TCB AppTaskListTCB;
+//  OS_TCB   AppTaskUsartPendTCB;
 //static  OS_TCB   AppTaskPollTCB;
 //static  OS_TCB   AppTaskPollPendTCB;
 
@@ -76,6 +79,7 @@ static  OS_TCB   AppTaskStartTCB;    //ÈÎÎñ¿ØÖÆ¿é
 static  CPU_STK  AppTaskStartStk[APP_TASK_START_STK_SIZE];       //ÈÎÎñ¶ÑÕ»
 
 static  CPU_STK  AppTaskCheckDeviceStk[ APP_TASK_CHECK_DEVICE_SIZE ];
+static  CPU_STK  AppTaskListStk[ APP_TASK_LIST_SIZE ];
 //static  CPU_STK  AppTaskUsartPendStk[ APP_TASK_USART_PEND_SIZE ];
 //static  CPU_STK  AppTaskPollStk[ APP_TASK_POLL_SIZE ];
 //static  CPU_STK  AppTaskPollPendStk[ APP_TASK_POLL_PEND_SIZE ];
@@ -94,6 +98,7 @@ static  CPU_STK  AppTaskCheckDeviceStk[ APP_TASK_CHECK_DEVICE_SIZE ];
 static  void  AppTaskStart  (void *p_arg);               //ÈÎÎñº¯ÊıÉùÃ÷
 
 static  void  AppTaskCheckDevice (void *p_arg);
+static  void  AppTaskList(void *p_arg);
 //static  void  AppTaskUsartPend (void *p_arg);
 //static  void  AppTaskPoll (void *p_arg);
 //static  void  AppTaskPollPend (void *p_arg);
@@ -187,7 +192,12 @@ static  void  AppTaskStart (void *p_arg)
 		                     (OS_TICK       )0,                    //°Ñ OSCfg_TickRate_Hz / 10 ÉèÎªÄ¬ÈÏÊ±¼äÆ¬Öµ
 												 (OS_ERR       *)&err );               //·µ»Ø´íÎóÀàĞÍ
 
-
+		/* ´´½¨»¥³âĞÅºÅÁ¿ mutex */
+    OSMutexCreate ((OS_MUTEX  *)&List,           //Ö¸ÏòĞÅºÅÁ¿±äÁ¿µÄÖ¸Õë
+                   (CPU_CHAR  *)"List", //ĞÅºÅÁ¿µÄÃû×Ö
+                   (OS_ERR    *)&err);            //´íÎóÀàĞÍ
+									 
+									 
 		/* ´´½¨ÄÚ´æ¹ÜÀí¶ÔÏó mem */
 		OSMemCreate ((OS_MEM      *)&Mem,             //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
 								 (CPU_CHAR    *)"Mem For Test",   //ÃüÃûÄÚ´æ¹ÜÀí¶ÔÏó
@@ -195,7 +205,7 @@ static  void  AppTaskStart (void *p_arg)
 								 (OS_MEM_QTY   )3,               //ÄÚ´æ·ÖÇøÖĞÄÚ´æ¿éÊıÄ¿
 								 (OS_MEM_SIZE  )100,                //ÄÚ´æ¿éµÄ×Ö½ÚÊıÄ¿
 								 (OS_ERR      *)&err);            //·µ»Ø´íÎóÀàĞÍ
-							 
+		 
 //		/* ´´½¨¶àÖµĞÅºÅÁ¿ SemOfKey */
 //    OSSemCreate((OS_SEM      *)&SemOfPoll,    //Ö¸ÏòĞÅºÅÁ¿±äÁ¿µÄÖ¸Õë
 //               (CPU_CHAR    *)"SemOfPoll",    //ĞÅºÅÁ¿µÄÃû×Ö
@@ -218,21 +228,7 @@ static  void  AppTaskStart (void *p_arg)
 //                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
 //                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàĞÍ
 
-//		/* ´´½¨ AppTaskPend ÈÎÎñ */
-//    OSTaskCreate((OS_TCB     *)&AppTaskPendTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
-//                 (CPU_CHAR   *)"App Task Pend",                             //ÈÎÎñÃû³Æ
-//                 (OS_TASK_PTR ) AppTaskPend,                                //ÈÎÎñº¯Êı
-//                 (void       *) 0,                                          //´«µİ¸øÈÎÎñº¯Êı£¨ĞÎ²Îp_arg£©µÄÊµ²Î
-//                 (OS_PRIO     ) APP_TASK_PEND_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
-//                 (CPU_STK    *)&AppTaskPendStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
-//                 (CPU_STK_SIZE) APP_TASK_PEND_STK_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏŞÖÆÆäÔö³¤
-//                 (CPU_STK_SIZE) APP_TASK_PEND_STK_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
-//                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êı
-//                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊı£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
-//                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
-//                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
-//                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàĞÍ
-//   						 
+  						 
      /*´´½¨ÂÖÑ¯²éÑ¯UsartÊı¾İÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
     OSTaskCreate((OS_TCB     *)&AppTaskCheckDeviceTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
                  (CPU_CHAR   *)"App_Task_Check_Device",                             //ÈÎÎñÃû³Æ
@@ -247,7 +243,25 @@ static  void  AppTaskStart (void *p_arg)
                  (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
                  (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
                  (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàĞÍ
-	 
+
+
+		/* ´´½¨ AppTaskPend ÈÎÎñ */
+    OSTaskCreate((OS_TCB     *)&AppTaskListTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
+                 (CPU_CHAR   *)"App Task Pend",                             //ÈÎÎñÃû³Æ
+                 (OS_TASK_PTR ) AppTaskList,                                //ÈÎÎñº¯Êı
+                 (void       *) 0,                                          //´«µİ¸øÈÎÎñº¯Êı£¨ĞÎ²Îp_arg£©µÄÊµ²Î
+                 (OS_PRIO     ) APP_TASK_LIST_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
+                 (CPU_STK    *)&AppTaskListStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
+                 (CPU_STK_SIZE) APP_TASK_LIST_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏŞÖÆÆäÔö³¤
+                 (CPU_STK_SIZE) APP_TASK_LIST_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
+                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êı
+                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊı£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
+                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
+                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
+                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàĞÍ
+ 
+
+								 
 //	/* ´´½¨ AppTaskUsart ÈÎÎñ */
 //    OSTaskCreate((OS_TCB     *)&AppTaskUsartPendTCB,                            //ÈÎÎñ¿ØÖÆ¿éµØÖ·
 //                 (CPU_CHAR   *)"App Task Usart Pend",                            //ÈÎÎñÃû³Æ
@@ -405,18 +419,30 @@ static  void  AppTaskCheckDevice( void * p_arg )
 	uint8_t Addr=0;
 	uint32_t Check_Temp[20]={0};
 	uint32_t *Msg=0;
-	uint8_t tt[4]={0};
+	uint8_t Device_Exist=0;
+	uint8_t Find_Device=0;
+	
 	(void)p_arg;
 
 					 
 	while (DEF_TRUE) 
-		{ 
-      
+		{      
 			if(Addr>0x3f)
 			{
 			 Addr=0;
 			}
-     
+			OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âĞÅºÅÁ¿ mutex
+									 (OS_TICK    )0,                       //ÎŞÆÚÏŞµÈ´ı
+									 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
+									 (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
+									 (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàĞÍ	
+
+      Device_Exist=Find_Node(Addr);
+			
+		  OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âĞÅºÅÁ¿ mutex
+								   (OS_OPT     )OS_OPT_POST_NONE,       //½øĞĞÈÎÎñµ÷¶È
+								   (OS_ERR    *)&err);   	
+			
 			Check_Temp[0]=0xad;
 			Check_Temp[1]=0xda;
 			Check_Temp[2]=0x02;
@@ -429,25 +455,73 @@ static  void  AppTaskCheckDevice( void * p_arg )
 
 			
 		/* ×èÈûÈÎÎñ£¬µÈ´ıÈÎÎñÏûÏ¢ */
-		 Msg = OSTaskQPend ((OS_TICK        )1000,                    //ÎŞÆÚÏŞµÈ´ı
+		 Msg = OSTaskQPend ((OS_TICK        )2000,                    //ÎŞÆÚÏŞµÈ´ı
 											  (OS_OPT         )OS_OPT_PEND_BLOCKING, //Ã»ÓĞÏûÏ¢¾Í×èÈûÈÎÎñ
 											  (OS_MSG_SIZE   *)&Msg_size,            //·µ»ØÏûÏ¢³¤¶È
 											  (CPU_TS        *)0,                    //·µ»ØÏûÏ¢±»·¢²¼µÄÊ±¼ä´Á
 											  (OS_ERR        *)&err);                //·µ»Ø´íÎóÀàĞÍ
 			
 		OS_CRITICAL_ENTER();                                       //½øÈëÁÙ½ç¶Î£¬±ÜÃâ´®¿Ú´òÓ¡±»´ò¶Ï
+		
+		Find_Device=(*(Msg+3)==Addr?1:0);
+		
+		
+    if(Device_Exist)
+		{ 
+			if(Find_Device)        //Éè±¸´æÔÚÓÚÁ´±í²¢ÇÒ²éÕÒÓĞ»Ø¸´
+			{
+			//¶Ô±ÈÉè±¸µÄ×´Ì¬ĞÅÏ¢£¬¿´¿´ÊÇ·ñÓĞĞÂIOÌí¼Ó¡¢ĞÂ×´Ì¬¸üĞÂ
 			
+			}
+			else                 //Éè±¸´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÃ»ÓĞ»Ø¸´
+			{
+			//¶ÔÉè±¸½øĞĞoffline²Ù×÷£¬É¾³ı½Úµã
+			
+			}
+		  
+		}
+		else 
+		{
+			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓĞ»Ø¸´£
+			{
+			//Õâ¸öÊÇĞÂµÄÉè±¸¼ÓÈë£¬ĞèÒª²åÈë½Úµã£¬¸üĞÂ×´Ì¬
+			}
+			else               //Éè±¸²»´æÔÚÓÚÁ´±í£¬²éÕÒÒ²Ã»ÓĞ»Ø¸´   
+			{
+			//Ã»ÓĞÕâ¸öÉè±¸£¬¼ÌĞø²éÕÒÏÂÒ»¸öÉè±¸
+			
+			}	
+		}
+
+
 //		tt[0]=*Msg>>24;
 //		tt[1]=*Msg>>16;
 //		tt[2]=*Msg>>8;
 //		tt[3]=*Msg;
 //		USART1_Send_Data1(tt,4);
 //		  USART1_Send_Data(Msg,4);	
-		if(*(Msg+3)==Addr++)
-		{
-		  USART1_Send_Data(Msg,(u16)Msg_size);	  			
-		  macLED1_TOGGLE();	
-		}
+//		if(*(Msg+3)==Addr++)
+//		{
+//								/* ·¢²¼ÈÎÎñÏûÏ¢µ½ÈÎÎñ AppTaskUsart */
+//		  OSTaskQPost ((OS_TCB      *)&AppTaskListTCB,      //Ä¿±êÈÎÎñµÄ¿ØÖÆ¿é
+//									 (void        *)Msg,             //ÏûÏ¢ÄÚÈİµÄÊ×µØÖ·
+//									 (OS_MSG_SIZE  )Msg_size,                     //ÏûÏ¢³¤¶È
+//									 (OS_OPT       )OS_OPT_POST_FIFO,      //·¢²¼µ½ÈÎÎñÏûÏ¢¶ÓÁĞµÄÈë¿Ú¶Ë
+//									 (OS_ERR      *)&err);                 //·µ»Ø´íÎóÀàĞÍ
+//				 
+//			
+//			
+//		  USART1_Send_Data(Msg,(u16)Msg_size);	  			
+//		  macLED1_TOGGLE();	
+//		}
+//		else
+//		{
+
+		/* ÍË»¹ÄÚ´æ¿é */
+		OSMemPut ((OS_MEM  *)&Mem,                                 //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
+							(void    *)Msg,                                 //ÄÚ´æ¿éµÄÊ×µØÖ·
+							(OS_ERR  *)&err);		                             //·µ»Ø´íÎóÀàĞÍ			
+//		}
 /*//»òÕß×ª»»³Éu8ĞÍÊı×é
 //		for(i=0;i<Msg_size;i++)
 //		{
@@ -456,13 +530,62 @@ static  void  AppTaskCheckDevice( void * p_arg )
 //		USART1_Send_Data1(lc,Msg_size);		*/			
 
 		macLED2_TOGGLE();	
-		/* ÍË»¹ÄÚ´æ¿é */
-		OSMemPut ((OS_MEM  *)&Mem,                                 //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
-							(void    *)Msg,                                 //ÄÚ´æ¿éµÄÊ×µØÖ·
-							(OS_ERR  *)&err);		                             //·µ»Ø´íÎóÀàĞÍ	
-							
+//		/* ÍË»¹ÄÚ´æ¿é */
+//		OSMemPut ((OS_MEM  *)&Mem,                                 //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
+//							(void    *)Msg,                                 //ÄÚ´æ¿éµÄÊ×µØÖ·
+//							(OS_ERR  *)&err);		                             //·µ»Ø´íÎóÀàĞÍ	
+//							
 		OS_CRITICAL_EXIT();                                        //ÍË³öÁÙ½ç¶Î							
 	  }
+}
+
+
+static  void  AppTaskList(void *p_arg)
+{
+	OS_ERR      err;
+  uint32_t *List_Msg=0;
+	
+  OS_MSG_SIZE List_Msg_Size;
+	
+	CPU_SR_ALLOC();
+	
+	(void)p_arg;
+
+					 
+	while (DEF_TRUE)
+	{
+/* ×èÈûÈÎÎñ£¬µÈ´ıÈÎÎñÏûÏ¢ */
+		 List_Msg = OSTaskQPend ((OS_TICK        )0,                    //ÎŞÆÚÏŞµÈ´ı
+											       (OS_OPT         )OS_OPT_PEND_BLOCKING, //Ã»ÓĞÏûÏ¢¾Í×èÈûÈÎÎñ
+											       (OS_MSG_SIZE   *)&List_Msg_Size,            //·µ»ØÏûÏ¢³¤¶È
+											       (CPU_TS        *)0,                    //·µ»ØÏûÏ¢±»·¢²¼µÄÊ±¼ä´Á
+											       (OS_ERR        *)&err);                //·µ»Ø´íÎóÀ
+
+		OS_CRITICAL_ENTER();      		
+	  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âĞÅºÅÁ¿ mutex
+								 (OS_TICK    )0,                       //ÎŞÆÚÏŞµÈ´ı
+								 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
+								 (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
+								 (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàĞÍ		
+	
+	  USART1_Send_Data(List_Msg,(u16)List_Msg_Size);
+		macLED1_TOGGLE();	
+		OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âĞÅºÅÁ¿ mutex
+								 (OS_OPT     )OS_OPT_POST_NONE,       //½øĞĞÈÎÎñµ÷¶È
+								 (OS_ERR    *)&err);                  //·µ»Ø´íÎóÀàĞÍ	
+
+		
+		
+		
+		OSMemPut ((OS_MEM  *)&Mem,                                 //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
+							(void    *)List_Msg,                                 //ÄÚ´æ¿éµÄÊ×µØÖ·
+							(OS_ERR  *)&err);		                             //·µ»Ø´íÎóÀàĞÍ	
+		
+    OS_CRITICAL_EXIT();                                        //ÍË³öÁÙ½ç¶Î							
+		
+	}
+
+
 }
 
 //static  void  AppTaskUsartPend ( void * p_arg )

@@ -79,7 +79,7 @@
 #include "bsp_led.h"           
 #include "bsp_usart1.h"
 #include "bsp_key.h" 
-
+#include "bsp_list.h"
 /*
 *********************************************************************************************************
 *                                          GPIO PIN DEFINITIONS
