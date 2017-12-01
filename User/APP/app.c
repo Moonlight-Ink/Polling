@@ -471,12 +471,35 @@ static  void  AppTaskCheckDevice( void * p_arg )
 			if(Find_Device)        //Éè±¸´æÔÚÓÚÁ´±í²¢ÇÒ²éÕÒÓÐ»Ø¸´
 			{
 			//¶Ô±ÈÉè±¸µÄ×´Ì¬ÐÅÏ¢£¬¿´¿´ÊÇ·ñÓÐÐÂIOÌí¼Ó¡¢ÐÂ×´Ì¬¸üÐÂ
+				
+			  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
+									   (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
+									   (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
+									   (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
+									   (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
+				
+        Updata_Node(Msg);
+
+		    OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
+								     (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
+								     (OS_ERR    *)&err); 				
 			
 			}
 			else                 //Éè±¸´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÃ»ÓÐ»Ø¸´
 			{
 			//¶ÔÉè±¸½øÐÐoffline²Ù×÷£¬É¾³ý½Úµã
-			
+				
+        OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
+									   (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
+									   (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
+									   (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
+									   (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
+
+		    Delete_Node(*(Msg+3));		
+
+		    OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
+								     (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
+								     (OS_ERR    *)&err); 	
 			}
 		  
 		}
@@ -485,6 +508,19 @@ static  void  AppTaskCheckDevice( void * p_arg )
 			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓÐ»Ø¸´£
 			{
 			//Õâ¸öÊÇÐÂµÄÉè±¸¼ÓÈë£¬ÐèÒª²åÈë½Úµã£¬¸üÐÂ×´Ì¬
+			  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
+									   (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
+									   (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
+									   (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
+									   (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
+
+        Insert_Node(Msg); 
+				
+		    OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
+								     (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
+								     (OS_ERR    *)&err); 				
+				
+				
 			}
 			else               //Éè±¸²»´æÔÚÓÚÁ´±í£¬²éÕÒÒ²Ã»ÓÐ»Ø¸´   
 			{
