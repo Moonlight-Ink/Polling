@@ -505,7 +505,7 @@ static  void  AppTaskCheckDevice( void * p_arg )
 		}
 		else 
 		{
-			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓĞ»Ø¸´£
+			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓĞ»Ø¸´
 			{
 			//Õâ¸öÊÇĞÂµÄÉè±¸¼ÓÈë£¬ĞèÒª²åÈë½Úµã£¬¸üĞÂ×´Ì¬
 			  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âĞÅºÅÁ¿ mutex
