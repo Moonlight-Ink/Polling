@@ -465,9 +465,9 @@ Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\cpu_a.d -o.\objects\cpu_a.o -IC:\Users\Moonlight\Desktop
 \Polling\Project\RVMDK£¨uv5£©\RTE -I"F:\Program Files\Keil_v5\ARM\PACK\Keil\STM
 32F1xx_DFP\2.2.0\Device\Include" -I"F:\Program Files\Keil_v5\ARM\CMSIS\Include"
- --predefine="__EVAL SETA 1" --predefine="__MICROLIB SETA 1" --predefine="__UVI
-SION_VERSION SETA 515" --predefine="STM32F10X_HD SETA 1" --list=.\listings\cpu_
-a.lst ..\..\User\uC-CPU\ARM-Cortex-M3\RealView\cpu_a.asm
+ --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 515" --pre
+define="STM32F10X_HD SETA 1" --list=.\listings\cpu_a.lst ..\..\User\uC-CPU\ARM-
+Cortex-M3\RealView\cpu_a.asm
 
 
 
@@ -561,4 +561,4 @@ Symbol: CPU_WaitForInt
       At line 46 in file ..\..\User\uC-CPU\ARM-Cortex-M3\RealView\cpu_a.asm
 Comment: CPU_WaitForInt used once
 10 symbols
-344 symbols in table
+343 symbols in table

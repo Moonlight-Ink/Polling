@@ -3,9 +3,6 @@
 #include <string.h>
 #include <stdlib.h> 
 #include "bsp_cjson.h"
-//#include "utility.h"
-
-//Node *Head;
 
 uint8_t repeat=0;
 
@@ -36,9 +33,9 @@ void Insert_Node(uint32_t *Insert_Temp)
 {
 	uint8_t i=0,Cnt=0;
 	
-	char IO_Channel[6]={0};
-	char IO_State[6]={0};
-	char Relay_State[4]={0};
+	uint8_t IO_Channel[6]={0};
+	uint8_t IO_State[6]={0};
+	uint8_t Relay_State[4]={0};
 
 	Node *Insert;
   Node *Insert_Cur=Head->Next;
@@ -74,9 +71,8 @@ void Insert_Node(uint32_t *Insert_Temp)
 	{
 		 Relay_State[i]=Insert->data.Relay_State[i];			
 	}  
-	
 			
-	Creat_Cjson_Join(IO_Channel,IO_State,Cnt,Relay_State,Insert->data.Type);				
+	Creat_Cjson_Join(IO_Channel,IO_State,Cnt,Relay_State,Insert->data.Type,Insert->data.addr);				
 }
 
 
@@ -154,9 +150,9 @@ void Updata_Node(uint32_t *Temp)
 	uint8_t Cnt=0;
 	Data Comp;
 	
-	char IO_Channel[6]={0};
-	char IO_State[6]={0};
-	char Relay_State[4]={0};
+	uint8_t IO_Channel[6]={0};
+	uint8_t IO_State[6]={0};
+	uint8_t Relay_State[4]={0};
 	
   Node *Cpa_Cur=Head->Next;
 	Node *Cpa_Pre=Head;
@@ -185,7 +181,10 @@ void Updata_Node(uint32_t *Temp)
 			  Relay_State[i]=Cpa_Cur->data.Relay_State[i];			
 			}
 			
-			Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Cpa_Cur->data.Type);
+//			Creat_Cjson_Report(Comp);
+			Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Cpa_Cur->data.Type,Cpa_Cur->data.addr);			
+			break;
+
     }	
 	  Cpa_Pre=Cpa_Cur;
 		Cpa_Cur=Cpa_Cur->Next;	

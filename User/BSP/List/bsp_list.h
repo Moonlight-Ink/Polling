@@ -3,13 +3,6 @@
 
 #include "stm32f10x.h"
 
-
-//#define IO       0
-//#define Realy    1
-//#define Unpress  0  
-//#define Press    1
-//#define Close    0
-//#define Open     1
 #define FALSE      0
 #define TRUE       1
 
@@ -18,14 +11,15 @@ typedef struct Data
   uint8_t addr;
 	uint8_t Offline_Cnt;
 	uint8_t Type;
-	char IO_Enable[6];
-	char IO_Triggle[6];
-	char Relay_State[4];
+	uint8_t IO_Enable[6];
+	uint8_t IO_Triggle[6];
+	uint8_t Relay_State[4];
 }Data;
 
+
 typedef struct NODE {    
-    struct Data data;
-    struct NODE *Next;
+   struct  Data data;
+   struct  NODE *Next;
 }Node;
 
 

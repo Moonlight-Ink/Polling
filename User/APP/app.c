@@ -63,12 +63,6 @@ static  OS_TCB   AppTaskStartTCB;    //任务控制块
 
        OS_TCB AppTaskCheckDeviceTCB;
 static OS_TCB AppTaskListTCB;
-//  OS_TCB   AppTaskUsartPendTCB;
-//static  OS_TCB   AppTaskPollTCB;
-//static  OS_TCB   AppTaskPollPendTCB;
-
-//OS_TCB   AppTaskPostTCB;
-//OS_TCB   AppTaskPendTCB;
 
 /*
 *********************************************************************************************************
@@ -80,13 +74,7 @@ static  CPU_STK  AppTaskStartStk[APP_TASK_START_STK_SIZE];       //任务堆栈
 
 static  CPU_STK  AppTaskCheckDeviceStk[ APP_TASK_CHECK_DEVICE_SIZE ];
 static  CPU_STK  AppTaskListStk[ APP_TASK_LIST_SIZE ];
-//static  CPU_STK  AppTaskUsartPendStk[ APP_TASK_USART_PEND_SIZE ];
-//static  CPU_STK  AppTaskPollStk[ APP_TASK_POLL_SIZE ];
-//static  CPU_STK  AppTaskPollPendStk[ APP_TASK_POLL_PEND_SIZE ];
 
-
-//static  CPU_STK  AppTaskPostStk [ APP_TASK_POST_STK_SIZE ];
-//static  CPU_STK  AppTaskPendStk [ APP_TASK_PEND_STK_SIZE ];
 
 
 /*
@@ -99,11 +87,6 @@ static  void  AppTaskStart  (void *p_arg);               //任务函数声明
 
 static  void  AppTaskCheckDevice (void *p_arg);
 static  void  AppTaskList(void *p_arg);
-//static  void  AppTaskUsartPend (void *p_arg);
-//static  void  AppTaskPoll (void *p_arg);
-//static  void  AppTaskPollPend (void *p_arg);
-//static  void  AppTaskPost   ( void * p_arg );
-//static  void  AppTaskPend   ( void * p_arg );
 
 
 /*
@@ -205,29 +188,7 @@ static  void  AppTaskStart (void *p_arg)
 								 (OS_MEM_QTY   )3,               //内存分区中内存块数目
 								 (OS_MEM_SIZE  )100,                //内存块的字节数目
 								 (OS_ERR      *)&err);            //返回错误类型
-		 
-//		/* 创建多值信号量 SemOfKey */
-//    OSSemCreate((OS_SEM      *)&SemOfPoll,    //指向信号量变量的指针
-//               (CPU_CHAR    *)"SemOfPoll",    //信号量的名字
-//               (OS_SEM_CTR   )0,             //信号量这里是指示事件发生，所以赋值为0，表示事件还没有发生
-//               (OS_ERR      *)&err);         //错误类型								 
-								 
-								 
-//			/* 创建 AppTaskPost 任务 */
-//    OSTaskCreate((OS_TCB     *)&AppTaskPostTCB,                             //任务控制块地址
-//                 (CPU_CHAR   *)"App Task Post",                             //任务名称
-//                 (OS_TASK_PTR ) AppTaskPost,                                //任务函数
-//                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
-//                 (OS_PRIO     ) APP_TASK_POST_PRIO,                         //任务的优先级
-//                 (CPU_STK    *)&AppTaskPostStk[0],                          //任务堆栈的基地址
-//                 (CPU_STK_SIZE) APP_TASK_POST_STK_SIZE / 10,                //任务堆栈空间剩下1/10时限制其增长
-//                 (CPU_STK_SIZE) APP_TASK_POST_STK_SIZE,                     //任务堆栈空间（单位：sizeof(CPU_STK)）
-//                 (OS_MSG_QTY  ) 5u,                                         //任务可接收的最大消息数
-//                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
-//                 (void       *) 0,                                          //任务扩展（0表不扩展）
-//                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
-//                 (OS_ERR     *)&err);                                       //返回错误类型
-
+	
   						 
      /*创建轮询查询Usart数据是否接收完毕任务*/		
     OSTaskCreate((OS_TCB     *)&AppTaskCheckDeviceTCB,                             //任务控制块地址
@@ -259,151 +220,12 @@ static  void  AppTaskStart (void *p_arg)
                  (void       *) 0,                                          //任务扩展（0表不扩展）
                  (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
                  (OS_ERR     *)&err);                                       //返回错误类型
- 
-
 								 
-//	/* 创建 AppTaskUsart 任务 */
-//    OSTaskCreate((OS_TCB     *)&AppTaskUsartPendTCB,                            //任务控制块地址
-//                 (CPU_CHAR   *)"App Task Usart Pend",                            //任务名称
-//                 (OS_TASK_PTR ) AppTaskUsartPend,                               //任务函数
-//                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
-//                 (OS_PRIO     ) APP_TASK_USART_PEND_PRIO,                        //任务的优先级
-//                 (CPU_STK    *)&AppTaskUsartPendStk[0],                         //任务堆栈的基地址
-//                 (CPU_STK_SIZE) APP_TASK_USART_PEND_SIZE / 10,               //任务堆栈空间剩下1/10时限制其增长
-//                 (CPU_STK_SIZE) APP_TASK_USART_PEND_SIZE,                    //任务堆栈空间（单位：sizeof(CPU_STK)）
-//                 (OS_MSG_QTY  ) 50u,                                        //任务可接收的最大消息数
-//                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
-//                 (void       *) 0,                                          //任务扩展（0表不扩展）
-//                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
-//                 (OS_ERR     *)&err);       								 
-								 					 
-//	/* 创建 AppTaskUsart 任务 */
-//    OSTaskCreate((OS_TCB     *)&AppTaskPollTCB,                            //任务控制块地址
-//                 (CPU_CHAR   *)"App Task Poll",                            //任务名称
-//                 (OS_TASK_PTR ) AppTaskPoll,                               //任务函数
-//                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
-//                 (OS_PRIO     ) APP_TASK_POLL_PRIO,                        //任务的优先级
-//                 (CPU_STK    *)&AppTaskPollStk[0],                         //任务堆栈的基地址
-//                 (CPU_STK_SIZE) APP_TASK_POLL_SIZE / 10,               //任务堆栈空间剩下1/10时限制其增长
-//                 (CPU_STK_SIZE) APP_TASK_POLL_SIZE,                    //任务堆栈空间（单位：sizeof(CPU_STK)）
-//                 (OS_MSG_QTY  ) 50u,                                        //任务可接收的最大消息数
-//                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
-//                 (void       *) 0,                                          //任务扩展（0表不扩展）
-//                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
-//                 (OS_ERR     *)&err);     
-
-//	/* 创建 AppTaskUsart 任务 */
-//    OSTaskCreate((OS_TCB     *)&AppTaskPollPendTCB,                            //任务控制块地址
-//                 (CPU_CHAR   *)"App Task Poll Pend",                            //任务名称
-//                 (OS_TASK_PTR ) AppTaskPollPend,                               //任务函数
-//                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
-//                 (OS_PRIO     ) APP_TASK_POLL_PEND_PRIO,                        //任务的优先级
-//                 (CPU_STK    *)&AppTaskPollPendStk[0],                         //任务堆栈的基地址
-//                 (CPU_STK_SIZE) APP_TASK_POLL_PEND_SIZE / 10,               //任务堆栈空间剩下1/10时限制其增长
-//                 (CPU_STK_SIZE) APP_TASK_POLL_PEND_SIZE,                    //任务堆栈空间（单位：sizeof(CPU_STK)）
-//                 (OS_MSG_QTY  ) 50u,                                        //任务可接收的最大消息数
-//                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
-//                 (void       *) 0,                                          //任务扩展（0表不扩展）
-//                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
-//                 (OS_ERR     *)&err);     								 
-								 
-								 
-								 
-								 
+														 
 		OSTaskDel ( 0, & err );                     //删除起始任务本身，该任务不再运行
 		
 		
 }
-
-
-/*
-*********************************************************************************************************
-*                                          POST TASK
-*********************************************************************************************************
-*/
-//static  void  AppTaskPost ( void * p_arg )
-//{
-//	OS_ERR      err;
-
-
-//	(void)p_arg;
-
-//					 
-//	while (DEF_TRUE) {                                             //任务体
-//		
-//		if( Key_ReadStatus ( macKEY1_GPIO_PORT, macKEY1_GPIO_PIN, 1 ) == 1 | Key_ReadStatus ( macKEY2_GPIO_PORT, macKEY2_GPIO_PIN, 1 ) == 0  )
-//		{
-//		  OSTimeDlyHMSM ( 0, 0, 0, 20, OS_OPT_TIME_DLY, & err );
-//		  if( Key_ReadStatus ( macKEY1_GPIO_PORT, macKEY1_GPIO_PIN, 1 ) == 1 | Key_ReadStatus ( macKEY2_GPIO_PORT, macKEY2_GPIO_PIN, 1 ) == 0  )
-//			{
-//			 if( Key_ReadStatus ( macKEY1_GPIO_PORT, macKEY1_GPIO_PIN, 1 ) == 1 && Key_ReadStatus ( macKEY2_GPIO_PORT, macKEY2_GPIO_PIN, 1 ) == 0  )
-//			 {
-//			   flag=0x03;		 
-//			 }
-//			 else if(Key_ReadStatus ( macKEY1_GPIO_PORT, macKEY1_GPIO_PIN, 1 ) == 1)
-//			 {
-//			   flag=0x01;
-//			 }
-//			 else
-//			 {
-//			   flag=0x02;
-//			 }
-//			}
-//		}
-//		
-//		if(flag)
-//		{
-//		  OSTaskQPost ((OS_TCB      *)&AppTaskPendTCB,                 //目标任务的控制块
-//							  	 (void        *)&flag,             //消息内容
-//								   (OS_MSG_SIZE  )sizeof(flag),  //消息长度
-//								   (OS_OPT       )OS_OPT_POST_FIFO,                //发布到任务消息队列的入口端
-//								   (OS_ERR      *)&err); 
-
-//		}
-
-//		OSTimeDlyHMSM ( 0, 0, 0,100, OS_OPT_TIME_DLY, & err ); 
-//		flag=0;
-//	}
-//	
-//}
-
-
-///*
-//*********************************************************************************************************
-//*                                          PEND TASK
-//*********************************************************************************************************
-//*/
-//static  void  AppTaskPend ( void * p_arg )
-//{
-//	OS_ERR         err;
-//	OS_MSG_SIZE    msg_size;
-//	
-//	char * pMsg;
-
-//	
-//	(void)p_arg;
-//	
-//	while (DEF_TRUE) {                                           //任务体
-//		/* 阻塞任务，等待任务消息 */
-//		pMsg = OSTaskQPend ((OS_TICK        )0,                    //无期限等待
-//											  (OS_OPT         )OS_OPT_PEND_BLOCKING, //没有消息就阻塞任务
-//											  (OS_MSG_SIZE   *)&msg_size,            //返回消息长度
-//											  (CPU_TS        *)0,                  //返回消息被发布的时间戳
-//											  (OS_ERR        *)&err);                //返回错误类型
-
-//		if(*pMsg==0x01)
-//		{
-//			macLED1_TOGGLE();
-//		}
-//		else if(*pMsg==0x02)
-//		  macLED2_TOGGLE();
-//		else if(*pMsg==0x03)
-//		  macLED3_TOGGLE();
-//			
-//		
-//	}
-//	
-//}
 
 /*
 *********************************************************************************************************
@@ -530,47 +352,12 @@ static  void  AppTaskCheckDevice( void * p_arg )
 		}
 
 
-//		tt[0]=*Msg>>24;
-//		tt[1]=*Msg>>16;
-//		tt[2]=*Msg>>8;
-//		tt[3]=*Msg;
-//		USART1_Send_Data1(tt,4);
-//		  USART1_Send_Data(Msg,4);	
-//		if(*(Msg+3)==Addr++)
-//		{
-//								/* 发布任务消息到任务 AppTaskUsart */
-//		  OSTaskQPost ((OS_TCB      *)&AppTaskListTCB,      //目标任务的控制块
-//									 (void        *)Msg,             //消息内容的首地址
-//									 (OS_MSG_SIZE  )Msg_size,                     //消息长度
-//									 (OS_OPT       )OS_OPT_POST_FIFO,      //发布到任务消息队列的入口端
-//									 (OS_ERR      *)&err);                 //返回错误类型
-//				 
-//			
-//			
-//		  USART1_Send_Data(Msg,(u16)Msg_size);	  			
-//		  macLED1_TOGGLE();	
-//		}
-//		else
-//		{
-
 		/* 退还内存块 */
 		OSMemPut ((OS_MEM  *)&Mem,                                 //指向内存管理对象
 							(void    *)Msg,                                 //内存块的首地址
-							(OS_ERR  *)&err);		                             //返回错误类型			
-//		}
-/*//或者转换成u8型数组
-//		for(i=0;i<Msg_size;i++)
-//		{
-//			lc[i]=*(Msg+i);
-//		}	
-//		USART1_Send_Data1(lc,Msg_size);		*/			
+							(OS_ERR  *)&err);		                             //返回错误类型				
 
 		macLED2_TOGGLE();	
-//		/* 退还内存块 */
-//		OSMemPut ((OS_MEM  *)&Mem,                                 //指向内存管理对象
-//							(void    *)Msg,                                 //内存块的首地址
-//							(OS_ERR  *)&err);		                             //返回错误类型	
-//							
 		OS_CRITICAL_EXIT();                                        //退出临界段							
 	  }
 }
@@ -620,54 +407,9 @@ static  void  AppTaskList(void *p_arg)
     OS_CRITICAL_EXIT();                                        //退出临界段							
 		
 	}
-
-
 }
 
-//static  void  AppTaskUsartPend ( void * p_arg )
-//{
-//  
-//	OS_ERR         err;
-//	OS_MSG_SIZE    Msg_size;
-//	CPU_SR_ALLOC();
-//	
-//	uint8_t i=0;
-//	uint32_t *Msg;
-//  uint8_t lc[20]={0};
-//	
-//	(void)p_arg;
 
-//					 
-//	while (DEF_TRUE) {                                           //任务体
-//		/* 阻塞任务，等待任务消息 */
-//		 Msg = OSTaskQPend ((OS_TICK        )0,                    //无期限等待
-//											  (OS_OPT         )OS_OPT_PEND_BLOCKING, //没有消息就阻塞任务
-//											  (OS_MSG_SIZE   *)&Msg_size,            //返回消息长度
-//											  (CPU_TS        *)0,                    //返回消息被发布的时间戳
-//											  (OS_ERR        *)&err);                //返回错误类型
-
-//		OS_CRITICAL_ENTER();                                       //进入临界段，避免串口打印被打断
-//		
-
-//		USART1_Send_Data(Msg,(u16)Msg_size);
-//		
-///*//或者转换成u8型数组
-////		for(i=0;i<Msg_size;i++)
-////		{
-////			lc[i]=*(Msg+i);
-////		}	
-////		USART1_Send_Data1(lc,Msg_size);		*/
-//		
-//		OS_CRITICAL_EXIT();                                        //退出临界段
-//		
-//		/* 退还内存块 */
-//		OSMemPut ((OS_MEM  *)&Mem,                                 //指向内存管理对象
-//							(void    *)Msg,                                 //内存块的首地址
-//							(OS_ERR  *)&err);		                             //返回错误类型
-//		
-//	}
-//	
-//}
 
 
 

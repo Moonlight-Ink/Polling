@@ -32,3 +32,6 @@
 .\objects\bsp_cjosn.o: ..\..\User\BSP\malloc\malloc.h
 .\objects\bsp_cjosn.o: ..\..\User\BSP\cjson\cJSON.h
 .\objects\bsp_cjosn.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\objects\bsp_cjosn.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\bsp_cjosn.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\bsp_cjosn.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
