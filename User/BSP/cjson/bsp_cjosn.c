@@ -85,6 +85,30 @@ void Creat_Cjson_Join(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uint8
 }
 
 
+void Create_Cjson_Discovery(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uint8_t Addr)
+{
+  cJSON *root;
+	char *out;
+	char String1[200]={0};
+	
+	Generate_IO_String(IO_Channel,IO_State,IO_Num,String1);
+	
+	root=cJSON_CreateObject();
+	cJSON_AddStringToObject(root,"cmd","discovery");
+	cJSON_AddStringToObject(root,"model","perfe1");
+	cJSON_AddNumberToObject(root,"addr",Addr);
+	cJSON_AddStringToObject(root,"io",String1);
+  out=cJSON_Print(root);
+	cJSON_Delete(root);
+	
+  /*·¢ËÍº¯Êýrs485*/		
+	printf("%s\n",out);
+	myfree(out);
+}
+
+
+
+
 void Generate_IO_String(uint8_t *Channel,uint8_t *State,uint8_t Cnt,char *Str)
 {
   uint8_t i=0;

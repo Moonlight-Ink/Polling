@@ -161,40 +161,101 @@ void Updata_Node(uint32_t *Temp)
 	uint8_t Cnt=0;
 	Data Comp;
 	
+	
 	uint8_t IO_Channel[6]={0};
 	uint8_t IO_State[6]={0};
+	uint8_t Change_IO_Cnt=0;
 	uint8_t Relay_State[4]={0};
+	uint8_t Change_Relay_Cnt=0;
+	
+	uint8_t Discovery_Channel[6]={0};
+	uint8_t Discovery_State[6]={0};
+	uint8_t Discovery_Cnt=0;
+	
+	uint8_t Offline_Channel[6]={0};
+	uint8_t Offline_Cnt=0;
 	
   Node *Cpa_Cur=Head->Next;
 	Node *Cpa_Pre=Head;
   
 	Comp=Array_to_structure(Temp);
 
+//	memcpy(tat1,Comp.IO_Enable,6);
+//	memcpy(tat2,Comp.IO_Triggle,6);
+//	memcpy(tat3,Comp.Relay_State,4);	
+	
+	
 	
 	while(Cpa_Cur)
 	{
     if(Cpa_Cur->data.addr==Comp.addr)
 		{
-      Cpa_Cur->data=Comp;
-		
-      for(i=0;i<6;i++)
-      {			
+			
+//	memcpy(tat4,Cpa_Cur->data.IO_Enable,6);
+//	memcpy(tat5,Cpa_Cur->data.IO_Triggle,6);
+//	memcpy(tat6,Cpa_Cur->data.Relay_State,4);			
+			
+			Cpa_Cur->data.Offline_Cnt=0;
+			
+			for(i=0;i<6;i++)
+			{
+		  	if(Cpa_Cur->data.IO_Enable[i]==0x10) //若链表io控制端是“使能”状态
+				{	
+					 if(Comp.IO_Enable[i]==0x10)        //新的io控制端也是"使能状态"，且io状态与链表一致，则不需要更新数据，否则更新链表中io状态，并上报
+					 {
+						 if(Cpa_Cur->data.IO_Triggle[i] != Comp.IO_Triggle[i])
+						 {
+							 Cpa_Cur->data.IO_Triggle[i]=Comp.IO_Triggle[i];								
+							 Change_IO_Cnt++;							   
+						 }					 
+					 }
+					 else                                       //若新的io是"失能"状态，则更新链表的io控制状态为"失能"状态，并更新链表io状态,并上报offline
+					 {
+						 Cpa_Cur->data.IO_Enable[i]=Comp.IO_Enable[i];
+						 Cpa_Cur->data.IO_Triggle[i]=Comp.IO_Triggle[i];
+					   Offline_Cnt++;
+					 }		
+				}	
+        else                                    //若链表中io控制端是"失能"状态
+				{
+					if(Comp.IO_Enable[i]==0x10)        //新的io控制端是"使能"状态，则更新链表的io控制端状态为"使能"，更新链表io状态，并上报discovery
+					{
+					   Cpa_Cur->data.IO_Enable[i]=Comp.IO_Enable[i];
+						 Cpa_Cur->data.IO_Triggle[i]=Comp.IO_Triggle[i];
+						 Discovery_Channel[Discovery_Cnt]=i;
+						 Discovery_State[Discovery_Cnt]=Cpa_Cur->data.IO_Triggle[i];
+					   Discovery_Cnt++;	
+					}
+				
+				}
+				
 				if(Cpa_Cur->data.IO_Enable[i])
 				{
-				 IO_Channel[Cnt]=i;
-				 IO_State[Cnt]=Cpa_Cur->data.IO_Triggle[i];
-				 Cnt++;			
-				}
-		  } 
+					 IO_Channel[Cnt]=i;
+					 IO_State[Cnt]=Cpa_Cur->data.IO_Triggle[i];
+					 Cnt++;			
+				}					
+			}		
 
-      for(i=0;i<Cpa_Cur->data.Type;i++)
+			for(i=0;i<Cpa_Cur->data.Type;i++)
 			{
-			  Relay_State[i]=Cpa_Cur->data.Relay_State[i];			
+			  if(Cpa_Cur->data.Relay_State[i] != Comp.Relay_State[i])  //链表中继电器状态和新的继电器状态不一致，则更新继电器状态，并上报
+				{
+				  Cpa_Cur->data.Relay_State[i] = Comp.Relay_State[i];
+					Change_Relay_Cnt++;				
+				}
+        Relay_State[i]=   Cpa_Cur->data.Relay_State[i];	
 			}
-			
-//			Creat_Cjson_Report(Comp);
-			Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Cpa_Cur->data.Type,Cpa_Cur->data.addr);	
 
+			
+			if(Discovery_Cnt)
+			{		
+        Create_Cjson_Discovery(Discovery_Channel,Discovery_State,Discovery_Cnt,Cpa_Cur->data.addr);				
+			}
+		  if(Change_IO_Cnt || Offline_Cnt || Discovery_Cnt)
+			{				
+			  Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Cpa_Cur->data.Type,Cpa_Cur->data.addr);					
+			}
 			break;
 
     }	
