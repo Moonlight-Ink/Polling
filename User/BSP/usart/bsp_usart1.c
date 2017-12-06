@@ -31,6 +31,7 @@ void USARTx_Config(void)
 	/* config USART1 clock */
 	macUSART_APBxClock_FUN(macUSART_CLK, ENABLE);
 	macUSART_GPIO_APBxClock_FUN(macUSART_GPIO_CLK, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
 	
 	/* USART1 GPIO config */
 	/* Configure USART1 Tx (PA.09) as alternate function push-pull */
@@ -42,6 +43,15 @@ void USARTx_Config(void)
 	GPIO_InitStructure.GPIO_Pin = macUSART_RX_PIN;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(macUSART_RX_PORT, &GPIO_InitStructure);
+	
+		  /* 485收发控制管脚 */
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP ;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
+	GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式
+	
+	
 	
 	/* USART1 mode config */
 	USART_InitStructure.USART_BaudRate = macUSART_BAUD_RATE;
@@ -75,23 +85,49 @@ void USARTx_Config(void)
 
 void USART1_Send_Data1(volatile u8 *buf,u8 len)
 {
-	uint8_t t;
-  for(t=0;t<len;t++)										//循环发送数据
-	{		   
-		while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	  
-		USART_SendData(USART1,buf[t]);
-	}	 
-	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);			  
+  uint8_t i=0;
+
+  GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式	
+	
+	while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);		
+	for(i=0;i<len;i++)
+	{
+   USART_SendData(USART1,buf[i]);
+		
+	 while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	
+  }
+  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
 }
 void USART1_Send_Data(volatile u32 *buf,u16 len)
 {
-	uint16_t t;
-  for(t=0;t<len;t++)										//循环发送数据
-	{		   
-		while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	  
-		USART_SendData(USART1,buf[t]);
-	}	 
-	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);			  
+	
+	
+  uint16_t i=0;
+
+  GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式	
+	
+	while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);		
+	for(i=0;i<len;i++)
+	{
+   USART_SendData(USART1,buf[i]);
+		
+	 while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	
+  }
+  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
+	
+//	uint16_t t;
+//	
+//	  GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式		
+//	
+//  for(t=0;t<len;t++)										//循环发送数据
+//	{		   
+//		while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	  
+//		USART_SendData(USART1,buf[t]);
+//	}	 
+////	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);			  
+//	
+//	  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
+	
 }
 
 void USART1_Send(uint8_t data)
@@ -105,12 +141,14 @@ void USART1_Send(uint8_t data)
 /// 重定向c库函数printf到USART1
 int fputc(int ch, FILE *f)
 {
+	  GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式	
+		while (USART_GetFlagStatus(macUSARTx, USART_FLAG_TXE) == RESET);		
 		/* 发送一个字节数据到USART1 */
 		USART_SendData(macUSARTx, (uint8_t) ch);
 		
 		/* 等待发送完毕 */
 		while (USART_GetFlagStatus(macUSARTx, USART_FLAG_TXE) == RESET);		
-	
+  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式			
 		return (ch);
 }
 

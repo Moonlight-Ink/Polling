@@ -33,3 +33,4 @@
 .\objects\bsp_list.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\bsp_list.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\bsp_list.o: ..\..\User\BSP\cjson\bsp_cjson.h
+.\objects\bsp_list.o: ..\..\User\BSP\usart\bsp_usart1.h

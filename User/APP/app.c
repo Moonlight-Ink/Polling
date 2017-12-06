@@ -53,6 +53,9 @@ uint8_t Rx_Cnt=0;
 uint8_t Rx_Temp[20]={0};
 Node *Head;
 
+	uint8_t Device_Exist=0;
+	uint8_t Find_Device=0;
+
 /*
 *********************************************************************************************************
 *                                                 TCB
@@ -238,11 +241,11 @@ static  void  AppTaskCheckDevice( void * p_arg )
   OS_MSG_SIZE Msg_size;
 	CPU_SR_ALLOC();
 	
-	uint8_t Addr=0;
+	uint8_t Addr=0x01;
 	uint32_t Check_Temp[20]={0};
 	uint32_t *Msg=0;
-	uint8_t Device_Exist=0;
-	uint8_t Find_Device=0;
+//	uint8_t Device_Exist=0;
+//	uint8_t Find_Device=0;
 	
 	(void)p_arg;
 
@@ -270,14 +273,14 @@ static  void  AppTaskCheckDevice( void * p_arg )
 			Check_Temp[2]=0x02;
 			Check_Temp[3]=Addr;
 			Check_Temp[4]=0x20;
-			Check_Temp[5]=0xaa;
+			Check_Temp[5]=0x03;
 		 	
-//      USART1_Send_Data(Check_Temp,6);
+      USART1_Send_Data(Check_Temp,6);
 
 
 			
 		/* 阻塞任务，等待任务消息 */
-		 Msg = OSTaskQPend ((OS_TICK        )2000,                    //无期限等待
+		 Msg = OSTaskQPend ((OS_TICK        )5000,                    //无期限等待
 											  (OS_OPT         )OS_OPT_PEND_BLOCKING, //没有消息就阻塞任务
 											  (OS_MSG_SIZE   *)&Msg_size,            //返回消息长度
 											  (CPU_TS        *)0,                    //返回消息被发布的时间戳
@@ -317,7 +320,7 @@ static  void  AppTaskCheckDevice( void * p_arg )
 									   (CPU_TS    *)0,                       //不想获得时间戳
 									   (OS_ERR    *)&err);                   //返回错误类型		
 
-		    Delete_Node(*(Msg+3));		
+		    Delete_Node(Addr);		
 
 		    OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
 								     (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度

@@ -3,6 +3,13 @@
 #include <string.h>
 #include <stdlib.h> 
 #include "bsp_cjson.h"
+#include "bsp_usart1.h"
+
+uint8_t test1=0,test2=0,test3=0;
+uint8_t tat1[6]={0},tat2[6]={0},tat3[4]={0};
+uint8_t tat4[6]={0},tat5[6]={0},tat6[4]={0};
+
+
 
 uint8_t repeat=0;
 
@@ -36,20 +43,23 @@ void Insert_Node(uint32_t *Insert_Temp)
 	uint8_t IO_Channel[6]={0};
 	uint8_t IO_State[6]={0};
 	uint8_t Relay_State[4]={0};
+	
+	Node *Insert_Cur=Head->Next;
+	Node *Insert_Pre=Head;
 
 	Node *Insert;
-  Node *Insert_Cur=Head->Next;
-	Node *Insert_Pre=Head;
+	Insert = (Node*)malloc (sizeof(Node));
+	
+	
+
 	
 	
 	Insert->data=Array_to_structure(Insert_Temp);
 	
+
 	
 	while(Insert_Cur)
 	{
-		if(Insert_Pre->data.addr > Insert->data.addr && Insert_Cur->data.addr < Insert->data.addr)
-			break;
-		
     Insert_Pre=Insert_Cur;
 	  Insert_Cur=Insert_Cur->Next;
   }	
@@ -72,7 +82,8 @@ void Insert_Node(uint32_t *Insert_Temp)
 		 Relay_State[i]=Insert->data.Relay_State[i];			
 	}  
 			
-	Creat_Cjson_Join(IO_Channel,IO_State,Cnt,Relay_State,Insert->data.Type,Insert->data.addr);				
+	Creat_Cjson_Join(IO_Channel,IO_State,Cnt,Relay_State,Insert->data.Type,Insert->data.addr);
+//      Print_Node();		
 }
 
 
@@ -182,7 +193,8 @@ void Updata_Node(uint32_t *Temp)
 			}
 			
 //			Creat_Cjson_Report(Comp);
-			Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Cpa_Cur->data.Type,Cpa_Cur->data.addr);			
+			Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Cpa_Cur->data.Type,Cpa_Cur->data.addr);	
+
 			break;
 
     }	
@@ -193,13 +205,16 @@ void Updata_Node(uint32_t *Temp)
 
 void Print_Node(void)
 {
-//	Node *Pri_Cur=Head->Next;
-//	
-//	while(Pri_Cur)
-//	{
-//		printf(" addr:%d,type:%s,chanel:%d,data:%s\r\n",Pri_Cur->data.addr,Pri_Cur->data.type,Pri_Cur->data.channel,Pri_Cur->data.data);		
-//		Pri_Cur=Pri_Cur->Next;		
-// }
+	uint8_t aa[2]={0};
+	Node *Pri_Cur=Head->Next;
+	
+	while(Pri_Cur)
+	{
+		aa[0]=Pri_Cur->data.addr;
+		USART1_Send_Data1(aa,1);
+//		printf("addr:%s\r\n",Pri_Cur->data.addr);		
+		Pri_Cur=Pri_Cur->Next;		
+ }
 }
 
 Data Array_to_structure(uint32_t *Trans_Temp)
@@ -210,20 +225,29 @@ Data Array_to_structure(uint32_t *Trans_Temp)
 	Trans.addr=*(Trans_Temp+3);
 	Trans.Type=*(Trans_Temp+5);
 	Trans.Offline_Cnt=0;
+	
+//	test1=*(Trans_Temp+6);
+//	test2=*(Trans_Temp+7);
+//	test3=*(Trans_Temp+8);
+	
 	for(i=0;i<4;i++)
 	{
-		Trans.IO_Enable[i]=((*(Trans_Temp+7)>>i)&0x02)==0x02?0x10:0x00; 
-	  Trans.IO_Triggle[i]=((*(Trans_Temp+7)>>i)&0x01)==0x01?0x10:0x00;
+		Trans.IO_Enable[i]=((*(Trans_Temp+7)>>(2*i))&0x02)==0x02?0x10:0x00; 
+	  Trans.IO_Triggle[i]=((*(Trans_Temp+7)>>(2*i))&0x01)==0x01?0x10:0x00;
 	}
-	for(i=4;i<6;i++)
-	{
-		Trans.IO_Enable[i]=((*(Trans_Temp+6)>>i)&0x02)==0x02?0x10:0x00; 
-	  Trans.IO_Triggle[i]=((*(Trans_Temp+6)>>i)&0x01)==0x01?0x10:0x00;	
+	for(i=0;i<2;i++)
+	{	
+		Trans.IO_Enable[4+i]=((*(Trans_Temp+6)>>(2*i))&0x02)==0x02?0x10:0x00; 
+	  Trans.IO_Triggle[4+i]=((*(Trans_Temp+6)>>(2*i))&0x01)==0x01?0x10:0x00;	
 	}
 	for(i=0;i<4;i++)
 	{
-	 Trans.Relay_State[i]=((*(Trans_Temp+8)>>i)&0x02)==0x02?0x10:0x00;
+	 Trans.Relay_State[i]=((*(Trans_Temp+8)>>(2*i))&0x02)==0x02?0x10:0x00;
 	}
+	
+//	memcpy(tat1,Trans.IO_Enable,6);
+//	memcpy(tat2,Trans.IO_Triggle,6);
+//	memcpy(tat3,Trans.Relay_State,4);
 	
 	return Trans;
 }

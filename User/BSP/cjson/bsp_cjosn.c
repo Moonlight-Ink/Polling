@@ -66,7 +66,7 @@ void Creat_Cjson_Join(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uint8
   Generate_Relay_String(Relay_State,Relay_Num,String2);
 	
 	root=cJSON_CreateObject();
-	cJSON_AddStringToObject(root,"cmd","report");
+	cJSON_AddStringToObject(root,"cmd","join");
 	cJSON_AddStringToObject(root,"model","perfe1");
 	cJSON_AddNumberToObject(root,"addr",Addr);
 //	cJSON_AddStringToObject(root,"type","io");
@@ -77,7 +77,6 @@ void Creat_Cjson_Join(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uint8
 	
   /*·¢ËÍº¯Êýrs485*/		
 	printf("%s\n",out);
-	
 	myfree(out);	
 	
 //	memset(String1,0,200);

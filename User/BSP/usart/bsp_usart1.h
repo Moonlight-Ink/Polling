@@ -8,7 +8,7 @@
 
 
 /**************************USART参数定义********************************/
-#define             macUSART_BAUD_RATE                       115200
+#define             macUSART_BAUD_RATE                       9600
 
 #define             macUSARTx                                USART1
 #define             macUSART_APBxClock_FUN                   RCC_APB2PeriphClockCmd
