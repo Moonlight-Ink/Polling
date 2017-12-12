@@ -66,6 +66,9 @@ static  OS_TCB   AppTaskStartTCB;    //任务控制块
 
        OS_TCB AppTaskCheckDeviceTCB;
 static OS_TCB AppTaskListTCB;
+static OS_TCB AppTaskTCPSERVERTCB;
+
+
 
 /*
 *********************************************************************************************************
@@ -77,6 +80,7 @@ static  CPU_STK  AppTaskStartStk[APP_TASK_START_STK_SIZE];       //任务堆栈
 
 static  CPU_STK  AppTaskCheckDeviceStk[ APP_TASK_CHECK_DEVICE_SIZE ];
 static  CPU_STK  AppTaskListStk[ APP_TASK_LIST_SIZE ];
+static  CPU_STK  AppTaskTCPServerStk[ APP_TASK_TCP_SERVERT_SIZE ];
 
 
 
@@ -90,7 +94,7 @@ static  void  AppTaskStart  (void *p_arg);               //任务函数声明
 
 static  void  AppTaskCheckDevice (void *p_arg);
 static  void  AppTaskList(void *p_arg);
-
+static  void  AppTaskTCPServer (void *p_arg);
 
 /*
 *********************************************************************************************************
@@ -223,6 +227,23 @@ static  void  AppTaskStart (void *p_arg)
                  (void       *) 0,                                          //任务扩展（0表不扩展）
                  (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
                  (OS_ERR     *)&err);                                       //返回错误类型
+
+     /*创建轮询查询Usart数据是否接收完毕任务*/		
+    OSTaskCreate((OS_TCB     *)&AppTaskTCPSERVERTCB,                             //任务控制块地址
+                 (CPU_CHAR   *)"App_Task_TCP_Server",                             //任务名称
+                 (OS_TASK_PTR ) AppTaskTCPServer,                                //任务函数
+                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
+                 (OS_PRIO     ) APP_TASK_TCP_SERVER_PRIO,                         //任务的优先级
+                 (CPU_STK    *)&AppTaskTCPServerStk[0],                          //任务堆栈的基地址
+                 (CPU_STK_SIZE) APP_TASK_TCP_SERVERT_SIZE / 10,                //任务堆栈空间剩下1/10时限制其增长
+                 (CPU_STK_SIZE) APP_TASK_TCP_SERVERT_SIZE,                     //任务堆栈空间（单位：sizeof(CPU_STK)）
+                 (OS_MSG_QTY  ) 50u,                                        //任务可接收的最大消息数
+                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
+                 (void       *) 0,                                          //任务扩展（0表不扩展）
+                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
+                 (OS_ERR     *)&err);     
+
+
 								 
 														 
 		OSTaskDel ( 0, & err );                     //删除起始任务本身，该任务不再运行
@@ -412,7 +433,30 @@ static  void  AppTaskList(void *p_arg)
 	}
 }
 
+static  void  AppTaskTCPServer (void *p_arg)
+{
+	
+	OS_ERR      err;	
+	(void)p_arg;
+	
+	
+	W5500_GPIO_Init();
+	W5500_Hardware_Reset();  //硬件复位W5500		
+	W5500_Parameters_Init();		//W5500初始配置
 
+	printf(" 野火网络适配版作为TCP 服务器，建立侦听，等待PC作为TCP Client建立连接 \r\n");
+	printf(" W5500监听端口为： %d \r\n",local_port);
+	printf(" 连接成功后，TCP Client发送数据给W5500，W5500将返回对应数据 \r\n");	
+		
+	
+	while (DEF_TRUE)
+	{
+		do_tcp_server();
+		OSTimeDlyHMSM ( 0, 0, 0,50, OS_OPT_TIME_DLY, &err);	
+	}
+
+
+}	
 
 
 

@@ -46,3 +46,13 @@
 .\objects\bsp.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\bsp.o: ..\..\User\BSP\Key\bsp_key.h
 .\objects\bsp.o: ..\..\User\BSP\List\bsp_list.h
+.\objects\bsp.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.h
+.\objects\bsp.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h
+.\objects\bsp.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
+.\objects\bsp.o: ..\..\User\BSP\spi\bsp_SPI.h
+.\objects\bsp.o: ..\..\User\BSP\Ethernet\W5500\w5500.h
+.\objects\bsp.o: ..\..\User\BSP\Ethernet\W5500\Types.h
+.\objects\bsp.o: ..\..\User\BSP\Ethernet\W5500\W5500_conf.h
+.\objects\bsp.o: ..\..\User\BSP\Ethernet\W5500\socket.h
+.\objects\bsp.o: ..\..\User\BSP\Ethernet\W5500\utility.h
+.\objects\bsp.o: ..\..\User\BSP\Ethernet\Internet\tcp_demo.h

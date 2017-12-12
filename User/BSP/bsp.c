@@ -166,6 +166,15 @@ void  BSP_Init (void)
 	
 	USARTx_Config ();   //初始化 USART1
 	Head=NodeCreat();			
+	
+	W5500_GPIO_Init();
+//	W5500_Hardware_Reset();  //硬件复位W5500		
+//	W5500_Parameters_Init();		//W5500初始配置
+
+//	printf(" 野火网络适配版作为TCP 服务器，建立侦听，等待PC作为TCP Client建立连接 \r\n");
+//	printf(" W5500监听端口为： %d \r\n",local_port);
+//	printf(" 连接成功后，TCP Client发送数据给W5500，W5500将返回对应数据 \r\n");	
+//		
 }
 
 
