@@ -36,6 +36,43 @@ struct NODE *NodeCreat(void)
 	return Head;
 }
 
+
+void Query_Node(uint8_t Addr)
+{
+	uint8_t i = 0,Cnt = 0;
+	uint8_t IO_Channel[6] = {0};
+	uint8_t IO_State[6] = {0};
+	uint8_t Relay_State[4] = {0};
+	Node *Que_Cur=Head->Next;
+	Node *Que_Pre=Head;
+	
+	while(Que_Cur)
+	{
+    if(Que_Cur->data.addr ==Addr)
+    {
+			for(i=0;i<6;i++)
+			{
+				if(Que_Cur->data.IO_Enable[i] == 0x10)
+				{
+					IO_Channel[Cnt] = i;
+					IO_State[Cnt] = Que_Cur->data.IO_Triggle[i];
+					Cnt++;
+				}
+		  }
+			
+      for(i=0;i<Que_Cur->data.Type;i++)
+			{
+			  Relay_State[i] = Que_Cur->data.Relay_State[i];			
+			}
+			Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Que_Cur->data.Type,Que_Cur->data.addr);					
+			break;
+    }
+		Que_Pre=Que_Cur;
+		Que_Cur=Que_Cur->Next; 
+  }
+}
+
+
 void Insert_Node(uint32_t *Insert_Temp)
 {
 	uint8_t i=0,Cnt=0;
@@ -50,14 +87,8 @@ void Insert_Node(uint32_t *Insert_Temp)
 	Node *Insert;
 	Insert = (Node*)malloc (sizeof(Node));
 	
-	
-
-	
-	
 	Insert->data=Array_to_structure(Insert_Temp);
-	
 
-	
 	while(Insert_Cur)
 	{
     Insert_Pre=Insert_Cur;

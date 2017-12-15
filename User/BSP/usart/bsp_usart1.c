@@ -98,10 +98,9 @@ void USART1_Send_Data1(volatile u8 *buf,u8 len)
   }
   GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
 }
+
 void USART1_Send_Data(volatile u32 *buf,u16 len)
-{
-	
-	
+{	
   uint16_t i=0;
 
   GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式	
@@ -115,26 +114,6 @@ void USART1_Send_Data(volatile u32 *buf,u16 len)
   }
   GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
 	
-//	uint16_t t;
-//	
-//	  GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式		
-//	
-//  for(t=0;t<len;t++)										//循环发送数据
-//	{		   
-//		while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	  
-//		USART_SendData(USART1,buf[t]);
-//	}	 
-////	while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);			  
-//	
-//	  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
-	
-}
-
-void USART1_Send(uint8_t data)
-{	   
-		while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	  
-		USART_SendData(USART1,data);
-	  while(USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);			  
 }
 
 

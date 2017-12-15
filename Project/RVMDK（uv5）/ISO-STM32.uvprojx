@@ -369,7 +369,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\Libraries\FWlib\inc;..\..\User;..\..\User\APP;..\..\User\BSP;..\..\User\BSP\Key;..\..\User\BSP\led;..\..\User\BSP\usart;..\..\User\uC-CPU;..\..\User\uC-CPU\ARM-Cortex-M3\RealView;..\..\User\uC-LIB;..\..\User\uCOS-III\Source;..\..\User\uCOS-III\Ports\ARM-Cortex-M3\Generic\RealView;..\..\User\BSP\List;..\..\User\BSP\cjson;..\..\User\BSP\malloc;..\..\User\BSP\Ethernet\Internet;..\..\User\BSP\Ethernet\W5500;..\..\User\BSP\I2C_EEPROM;..\..\User\BSP\spi</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\Libraries\FWlib\inc;..\..\User;..\..\User\APP;..\..\User\BSP;..\..\User\BSP\Key;..\..\User\BSP\led;..\..\User\BSP\usart;..\..\User\uC-CPU;..\..\User\uC-CPU\ARM-Cortex-M3\RealView;..\..\User\uC-LIB;..\..\User\uCOS-III\Source;..\..\User\uCOS-III\Ports\ARM-Cortex-M3\Generic\RealView;..\..\User\BSP\List;..\..\User\BSP\cjson;..\..\User\BSP\malloc;..\..\User\BSP\Ethernet\Internet;..\..\User\BSP\Ethernet\W5500;..\..\User\BSP\I2C_EEPROM;..\..\User\BSP\spi;..\..\User\BSP\crc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -751,6 +751,16 @@
               <FileName>bsp_SPI.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\User\BSP\spi\bsp_SPI.h</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_crc8.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\User\BSP\crc\bsp_crc8.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_crc8.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\User\BSP\crc\bsp_crc8.h</FilePath>
             </File>
           </Files>
         </Group>

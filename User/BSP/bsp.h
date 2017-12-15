@@ -80,7 +80,7 @@
 #include "bsp_usart1.h"
 #include "bsp_key.h" 
 #include "bsp_list.h"
-
+#include "bsp_crc8.h"
 #include "bsp_I2C_EEPROM.h"
 #include "bsp_I2C_GPIO.h"
 #include "bsp_SPI.h"

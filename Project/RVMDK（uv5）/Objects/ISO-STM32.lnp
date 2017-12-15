@@ -39,6 +39,7 @@
 ".\objects\bsp_i2c_eeprom.o"
 ".\objects\bsp_i2c_gpio.o"
 ".\objects\bsp_spi.o"
+".\objects\bsp_crc8.o"
 ".\objects\cpu_core.o"
 ".\objects\cpu_a.o"
 ".\objects\cpu_c.o"

@@ -50,6 +50,7 @@
 .\objects\app.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\app.o: ..\..\User\BSP\Key\bsp_key.h
 .\objects\app.o: ..\..\User\BSP\List\bsp_list.h
+.\objects\app.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\app.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.h
 .\objects\app.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h
 .\objects\app.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h

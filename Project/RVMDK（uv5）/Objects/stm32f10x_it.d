@@ -51,6 +51,7 @@
 .\objects\stm32f10x_it.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\Key\bsp_key.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\List\bsp_list.h
+.\objects\stm32f10x_it.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h
 .\objects\stm32f10x_it.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h

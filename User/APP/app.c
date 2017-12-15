@@ -262,6 +262,7 @@ static  void  AppTaskCheckDevice( void * p_arg )
   OS_MSG_SIZE Msg_size;
 	CPU_SR_ALLOC();
 	
+	uint8_t i=0;
 	uint8_t Addr=0x01;
 	uint32_t Check_Temp[20]={0};
 	uint32_t *Msg=0;
@@ -297,7 +298,15 @@ static  void  AppTaskCheckDevice( void * p_arg )
 			Check_Temp[5]=0x03;
 		 	
       USART1_Send_Data(Check_Temp,6);
-
+			
+//			for(i=0;i<6;i++)
+//			{
+//			 TCP_Send_Buffer[i]=(uint8_t)Check_Temp[i];			
+//			}			
+////			memcpy(TCP_Send_Buffer,(uint8_t *)Check_Temp,6);
+//			TCP_Send_Cnt=6;
+//      TCP_Send_Flag = 1;
+			
 
 			
 		/* 阻塞任务，等待任务消息 */

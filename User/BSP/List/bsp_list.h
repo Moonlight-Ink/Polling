@@ -38,7 +38,7 @@ Data Array_to_structure(uint32_t *Trans_Temp);
 
 void Print_Node(void);
 
-
+void Query_Node(uint8_t Addr);
 
 
 

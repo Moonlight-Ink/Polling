@@ -50,6 +50,7 @@
 .\objects\bsp_key.o: ..\..\User\BSP\led\bsp_led.h
 .\objects\bsp_key.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\bsp_key.o: ..\..\User\BSP\List\bsp_list.h
+.\objects\bsp_key.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\bsp_key.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.h
 .\objects\bsp_key.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h
 .\objects\bsp_key.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h

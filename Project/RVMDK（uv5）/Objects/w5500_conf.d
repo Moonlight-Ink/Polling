@@ -57,6 +57,7 @@
 .\objects\w5500_conf.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\w5500_conf.o: ..\..\User\BSP\Key\bsp_key.h
 .\objects\w5500_conf.o: ..\..\User\BSP\List\bsp_list.h
+.\objects\w5500_conf.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\w5500_conf.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h
 .\objects\w5500_conf.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
 .\objects\w5500_conf.o: ..\..\User\BSP\Ethernet\W5500\socket.h

@@ -35,3 +35,4 @@
 .\objects\tcp_demo.o: ..\..\Libraries\FWlib\inc\misc.h
 .\objects\tcp_demo.o: ..\..\User\BSP\Ethernet\W5500\w5500.h
 .\objects\tcp_demo.o: ..\..\User\BSP\Ethernet\W5500\socket.h
+.\objects\tcp_demo.o: ..\..\User\BSP\cjson\bsp_cjson.h
