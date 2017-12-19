@@ -33,4 +33,3 @@
 .\objects\bsp_i2c_eeprom.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
 .\objects\bsp_i2c_eeprom.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\bsp_i2c_eeprom.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-.\objects\bsp_i2c_eeprom.o: ..\..\User\BSP\Ethernet\W5500\types.h

@@ -17,6 +17,10 @@
   
 #include "bsp_usart1.h"
 
+uint8_t USART_Rx_Finsh = 0;
+uint8_t USART_Rx_Buffer[20] = {0};
+uint8_t USART_Rx_Count = 0;
+
  /**
   * @brief  USART1 GPIO 配置,工作模式配置。115200 8-N-1
   * @param  无
@@ -83,7 +87,7 @@ void USARTx_Config(void)
 	USART_Cmd(macUSARTx, ENABLE);
 }
 
-void USART1_Send_Data1(volatile u8 *buf,u8 len)
+void USART1_Send_Data(volatile u8 *buf,u8 len)
 {
   uint8_t i=0;
 
@@ -97,23 +101,6 @@ void USART1_Send_Data1(volatile u8 *buf,u8 len)
 	 while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	
   }
   GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
-}
-
-void USART1_Send_Data(volatile u32 *buf,u16 len)
-{	
-  uint16_t i=0;
-
-  GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式	
-	
-	while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);		
-	for(i=0;i<len;i++)
-	{
-   USART_SendData(USART1,buf[i]);
-		
-	 while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	
-  }
-  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
-	
 }
 
 

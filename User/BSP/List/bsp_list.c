@@ -4,6 +4,9 @@
 #include <stdlib.h> 
 #include "bsp_cjson.h"
 #include "bsp_usart1.h"
+#include <includes.h>
+
+extern OS_MUTEX List; 
 
 uint8_t test1=0,test2=0,test3=0;
 uint8_t tat1[6]={0},tat2[6]={0},tat3[4]={0};
@@ -19,7 +22,7 @@ struct NODE *NodeCreat(void)
 	if(Head == NULL)
 	{
 	 printf("false1");
-   return FALSE;
+   return 0;
   }
   Head->data.addr=0;
 	Head->data.Offline_Cnt=0;
@@ -39,12 +42,21 @@ struct NODE *NodeCreat(void)
 
 void Query_Node(uint8_t Addr)
 {
+	OS_ERR      err;	
+	
 	uint8_t i = 0,Cnt = 0;
 	uint8_t IO_Channel[6] = {0};
 	uint8_t IO_State[6] = {0};
 	uint8_t Relay_State[4] = {0};
 	Node *Que_Cur=Head->Next;
 	Node *Que_Pre=Head;
+	
+	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型		
+	
 	
 	while(Que_Cur)
 	{
@@ -70,11 +82,18 @@ void Query_Node(uint8_t Addr)
 		Que_Pre=Que_Cur;
 		Que_Cur=Que_Cur->Next; 
   }
+	
+	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err); 				
+	
 }
 
 
 void Insert_Node(uint32_t *Insert_Temp)
 {
+	OS_ERR      err;	
+	
 	uint8_t i=0,Cnt=0;
 	
 	uint8_t IO_Channel[6]={0};
@@ -89,6 +108,14 @@ void Insert_Node(uint32_t *Insert_Temp)
 	
 	Insert->data=Array_to_structure(Insert_Temp);
 
+	
+	
+	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型			
+	
 	while(Insert_Cur)
 	{
     Insert_Pre=Insert_Cur;
@@ -114,14 +141,29 @@ void Insert_Node(uint32_t *Insert_Temp)
 	}  
 			
 	Creat_Cjson_Join(IO_Channel,IO_State,Cnt,Relay_State,Insert->data.Type,Insert->data.addr);
+	
+	
+	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err); 					
 //      Print_Node();		
 }
 
 
 void Delete_Node(uint8_t address)
 {
+	OS_ERR      err;	
+	
   Node *Cur=Head->Next;
 	Node *Pre=Head;
+
+
+	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型		
+
 	
 	while(Cur)
 	{
@@ -145,23 +187,47 @@ void Delete_Node(uint8_t address)
 			Pre=Cur;
 			Cur=Cur->Next;
 		}
- }	
+ }
+
+	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err); 				
+
+ 
 }
 
 uint8_t Find_Node(uint8_t address)
 {
+	OS_ERR      err;	
+	
   Node *Cur=Head->Next;
+
+	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型		
+
 	
 	while(Cur)
 	{
 	  if(Cur->data.addr ==address)
 		{
-		 return TRUE;		
+			
+	    OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							     (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							     (OS_ERR    *)&err); 							
+		 return 1;		
 		}
 		Cur = Cur->Next;
 	}
+
+
+	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err); 				
 	
-	return FALSE;
+	return 0;
 }
 
 
@@ -188,6 +254,8 @@ uint8_t Find_Node(uint8_t address)
 
 void Updata_Node(uint32_t *Temp)
 {
+	OS_ERR      err;	
+	
   uint8_t i=0;
 	uint8_t Cnt=0;
 	Data Comp;
@@ -215,7 +283,11 @@ void Updata_Node(uint32_t *Temp)
 //	memcpy(tat2,Comp.IO_Triggle,6);
 //	memcpy(tat3,Comp.Relay_State,4);	
 	
-	
+	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型			
 	
 	while(Cpa_Cur)
 	{
@@ -293,20 +365,44 @@ void Updata_Node(uint32_t *Temp)
 	  Cpa_Pre=Cpa_Cur;
 		Cpa_Cur=Cpa_Cur->Next;	
   }
+	
+	
+	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err); 					
+	
+	
 }
 
 void Print_Node(void)
 {
+	OS_ERR      err;	
+	
 	uint8_t aa[2]={0};
 	Node *Pri_Cur=Head->Next;
+
+	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型		
+
+	
 	
 	while(Pri_Cur)
 	{
 		aa[0]=Pri_Cur->data.addr;
-		USART1_Send_Data1(aa,1);
+		USART1_Send_Data(aa,1);
 //		printf("addr:%s\r\n",Pri_Cur->data.addr);		
 		Pri_Cur=Pri_Cur->Next;		
  }
+	
+ 
+	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err); 				 
+ 
+ 
 }
 
 Data Array_to_structure(uint32_t *Trans_Temp)

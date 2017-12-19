@@ -34,3 +34,27 @@
 .\objects\bsp_list.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
 .\objects\bsp_list.o: ..\..\User\BSP\cjson\bsp_cjson.h
 .\objects\bsp_list.o: ..\..\User\BSP\usart\bsp_usart1.h
+.\objects\bsp_list.o: ..\..\User\APP\includes.h
+.\objects\bsp_list.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+.\objects\bsp_list.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\bsp_list.o: ..\..\User\uC-CPU\ARM-Cortex-M3\RealView\cpu.h
+.\objects\bsp_list.o: ..\..\User\uC-CPU\cpu_def.h
+.\objects\bsp_list.o: ..\..\User\APP\cpu_cfg.h
+.\objects\bsp_list.o: ..\..\User\uC-LIB\lib_def.h
+.\objects\bsp_list.o: ..\..\User\uC-LIB\lib_ascii.h
+.\objects\bsp_list.o: ..\..\User\uC-LIB\lib_math.h
+.\objects\bsp_list.o: ..\..\User\uC-CPU\cpu_core.h
+.\objects\bsp_list.o: ..\..\User\uC-LIB\lib_mem.h
+.\objects\bsp_list.o: ..\..\User\uC-CPU\cpu_core.h
+.\objects\bsp_list.o: ..\..\User\APP\lib_cfg.h
+.\objects\bsp_list.o: ..\..\User\uC-LIB\lib_str.h
+.\objects\bsp_list.o: ..\..\User\BSP\bsp.h
+.\objects\bsp_list.o: ..\..\User\APP\app_cfg.h
+.\objects\bsp_list.o: ..\..\User\BSP\led\bsp_led.h
+.\objects\bsp_list.o: ..\..\User\BSP\Key\bsp_key.h
+.\objects\bsp_list.o: ..\..\User\BSP\crc\bsp_crc8.h
+.\objects\bsp_list.o: ..\..\User\BSP\w5500\W5500.h
+.\objects\bsp_list.o: ..\..\User\uCOS-III\Source\os.h
+.\objects\bsp_list.o: ..\..\User\APP\os_cfg.h
+.\objects\bsp_list.o: ..\..\User\uCOS-III\Source\os_type.h
+.\objects\bsp_list.o: ..\..\User\uCOS-III\Ports\ARM-Cortex-M3\Generic\RealView\os_cpu.h

@@ -51,16 +51,7 @@
 .\objects\bsp_key.o: ..\..\User\BSP\usart\bsp_usart1.h
 .\objects\bsp_key.o: ..\..\User\BSP\List\bsp_list.h
 .\objects\bsp_key.o: ..\..\User\BSP\crc\bsp_crc8.h
-.\objects\bsp_key.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.h
-.\objects\bsp_key.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h
-.\objects\bsp_key.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
-.\objects\bsp_key.o: ..\..\User\BSP\spi\bsp_SPI.h
-.\objects\bsp_key.o: ..\..\User\BSP\Ethernet\W5500\w5500.h
-.\objects\bsp_key.o: ..\..\User\BSP\Ethernet\W5500\Types.h
-.\objects\bsp_key.o: ..\..\User\BSP\Ethernet\W5500\W5500_conf.h
-.\objects\bsp_key.o: ..\..\User\BSP\Ethernet\W5500\socket.h
-.\objects\bsp_key.o: ..\..\User\BSP\Ethernet\W5500\utility.h
-.\objects\bsp_key.o: ..\..\User\BSP\Ethernet\Internet\tcp_demo.h
+.\objects\bsp_key.o: ..\..\User\BSP\w5500\W5500.h
 .\objects\bsp_key.o: ..\..\User\uCOS-III\Source\os.h
 .\objects\bsp_key.o: ..\..\User\APP\os_cfg.h
 .\objects\bsp_key.o: ..\..\User\uCOS-III\Source\os_type.h

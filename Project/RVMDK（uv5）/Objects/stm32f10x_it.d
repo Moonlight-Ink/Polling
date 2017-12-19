@@ -52,16 +52,7 @@
 .\objects\stm32f10x_it.o: ..\..\User\BSP\Key\bsp_key.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\List\bsp_list.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\crc\bsp_crc8.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h
-.\objects\stm32f10x_it.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\inttypes.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\spi\bsp_SPI.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\Ethernet\W5500\w5500.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\Ethernet\W5500\Types.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\Ethernet\W5500\W5500_conf.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\Ethernet\W5500\socket.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\Ethernet\W5500\utility.h
-.\objects\stm32f10x_it.o: ..\..\User\BSP\Ethernet\Internet\tcp_demo.h
+.\objects\stm32f10x_it.o: ..\..\User\BSP\w5500\W5500.h
 .\objects\stm32f10x_it.o: ..\..\User\uCOS-III\Source\os.h
 .\objects\stm32f10x_it.o: ..\..\User\APP\os_cfg.h
 .\objects\stm32f10x_it.o: ..\..\User\uCOS-III\Source\os_type.h

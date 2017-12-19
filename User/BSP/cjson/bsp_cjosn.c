@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "tcp_demo.h"
-#include "socket.h"
 #include "w5500.h"
 #include "bsp_list.h"
 #include "bsp_crc8.h"
@@ -13,11 +11,11 @@
 #include <includes.h>
 
 
-uint32_t tst[8]={0xad,0xda,0x04,0x01,0x60,0x01,0x03,0x0c};
+uint8_t tst[8]={0xad,0xda,0x04,0x01,0x60,0x01,0x03,0x0c};
 
 void TCP_Cmd_Cjson_Analyze(uint8_t *TCP_Cmd,uint16_t TCP_Cmd_Cnt)
 {
-	cJSON *root,*out;
+	cJSON *root = NULL,*out = NULL;
   
 	
 	root=cJSON_Parse((char *)TCP_Cmd);
@@ -57,8 +55,8 @@ void TCP_Cmd_Cjson_Analyze(uint8_t *TCP_Cmd,uint16_t TCP_Cmd_Cnt)
 
 void Cmd_Ctronl(uint8_t Addr,char *Ctrl)
 {
-	OS_ERR      err;	
-		CPU_SR_ALLOC();
+//	OS_ERR      err;	
+//		CPU_SR_ALLOC();
 	
 	uint8_t i=0,Relay;
 	uint8_t Cmd_Buffer[15]={0};
@@ -115,7 +113,7 @@ void Cmd_Ctronl(uint8_t Addr,char *Ctrl)
 					Cmd_Buffer[7]=CRC8_Check(7,CRC_Buffer);	
 
 //		OS_CRITICAL_ENTER();    
-          USART1_Send_Data1(Cmd_Buffer,8);
+//          USART1_Send_Data1(Cmd_Buffer,8);
 //	    OS_CRITICAL_EXIT();   				
 //					OSTimeDlyHMSM ( 0, 0, 1,0, OS_OPT_TIME_DLY, &err);	
 				}				
@@ -141,12 +139,12 @@ void Creat_Cjson_Heartbeat(uint8_t Addr)
 		 out=cJSON_Print(root);
 	   cJSON_Delete(root);
 
-		 if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
-		 {
-			 TCP_Send_Cnt = strlen(out);
-    	 memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
-			 TCP_Send_Flag = 1; 	
-		 }		 	 
+//		 if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
+//		 {
+//			 TCP_Send_Cnt = strlen(out);
+//    	 memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
+//			 TCP_Send_Flag = 1; 	
+//		 }		 	 
 		 	myfree(out);		 
    }
 }
@@ -176,12 +174,12 @@ void Creat_Cjson_Report(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uin
 //  /*·¢ËÍº¯Êýrs485*/	
 //	printf("%s\n",out);
 
-	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
-	{
-		TCP_Send_Cnt = strlen(out);
-    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
-		TCP_Send_Flag = 1; 	
-	}	
+//	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
+//	{
+//		TCP_Send_Cnt = strlen(out);
+//    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
+//		TCP_Send_Flag = 1; 	
+//	}	
 
 
 
@@ -205,12 +203,12 @@ void Creat_Cjson_Offline(uint8_t Addr)
   out=cJSON_Print(root);
 	cJSON_Delete(root);
 	
-	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
-	{
-		TCP_Send_Cnt = strlen(out);
-    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
-		TCP_Send_Flag = 1; 	
-	}	
+//	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
+//	{
+//		TCP_Send_Cnt = strlen(out);
+//    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
+//		TCP_Send_Flag = 1; 	
+//	}	
 	
 	myfree(out);	
 
@@ -237,12 +235,12 @@ void Creat_Cjson_Join(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uint8
   out=cJSON_Print(root);
 	cJSON_Delete(root);
 	
-	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
-	{
-		TCP_Send_Cnt = strlen(out);
-    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
-		TCP_Send_Flag = 1; 	
-	}	
+//	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
+//	{
+//		TCP_Send_Cnt = strlen(out);
+//    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
+//		TCP_Send_Flag = 1; 	
+//	}	
 	
 	myfree(out);	
 	
@@ -268,12 +266,12 @@ void Create_Cjson_Discovery(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num
   out=cJSON_Print(root);
 	cJSON_Delete(root);
 	
-	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
-	{
-		TCP_Send_Cnt = strlen(out);
-    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
-		TCP_Send_Flag = 1; 	
-	}	
+//	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
+//	{
+//		TCP_Send_Cnt = strlen(out);
+//    memcpy(TCP_Send_Buffer,(uint8_t*)out,TCP_Send_Cnt);
+//		TCP_Send_Flag = 1; 	
+//	}	
 	
 	myfree(out);
 }
