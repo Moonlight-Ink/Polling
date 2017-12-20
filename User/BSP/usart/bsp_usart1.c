@@ -17,6 +17,10 @@
   
 #include "bsp_usart1.h"
 
+#include <includes.h>
+
+extern OS_MUTEX Usart;
+
 uint8_t USART_Rx_Finsh = 0;
 uint8_t USART_Rx_Buffer[20] = {0};
 uint8_t USART_Rx_Count = 0;
@@ -90,7 +94,14 @@ void USARTx_Config(void)
 void USART1_Send_Data(volatile u8 *buf,u8 len)
 {
   uint8_t i=0;
-
+//	OS_ERR      err;	
+//	
+//	OSMutexPend ((OS_MUTEX  *)&Usart,                  //申请互斥信号量 mutex
+//							 (OS_TICK    )0,                       //无期限等待
+//							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+//							 (CPU_TS    *)0,                       //不想获得时间戳
+//							 (OS_ERR    *)&err);                   //返回错误类型			
+	
   GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式	
 	
 	while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);		
@@ -100,7 +111,11 @@ void USART1_Send_Data(volatile u8 *buf,u8 len)
 		
 	 while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	
   }
-  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式		
+  GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式	
+
+//	OSMutexPost ((OS_MUTEX  *)&Usart,                 //释放互斥信号量 mutex
+//							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+//							 (OS_ERR    *)&err);                  //返回错误类型		
 }
 
 

@@ -54,7 +54,7 @@ OS_SEM  SemOfPoll;
 
 	uint8_t Device_Exist=0;
 	uint8_t Find_Device=0;
-
+	uint8_t Addr=0x01;
 /*
 *********************************************************************************************************
 *                                                 TCB
@@ -62,9 +62,9 @@ OS_SEM  SemOfPoll;
 */
 
 static OS_TCB AppTaskStartTCB;    //ÈÎÎñ¿ØÖÆ¿é
-static OS_TCB AppTaskUSART1CheckTCB;
+ OS_TCB AppTaskUSART1CheckTCB;
 static OS_TCB AppTaskTCPServerTCB;
-
+//static OS_TCB AppTaskPollDeviceTCB;
 
 
 /*
@@ -76,7 +76,7 @@ static OS_TCB AppTaskTCPServerTCB;
 static  CPU_STK  AppTaskStartStk[APP_TASK_START_STK_SIZE];       //ÈÎÎñ¶ÑÕ»
 static  CPU_STK  AppTaskUSART1CheckStk[ APP_TASK_USART1_CHECK_SIZE ];
 static  CPU_STK  AppTaskTCPServerStk[ APP_TASK_TCP_SERVERT_SIZE ];
-
+//static  CPU_STK  AppTaskTCPPollDeviceStk[ APP_TASK_TCP_POLL_DEVICE_SIZE ];
 
 
 /*
@@ -88,7 +88,7 @@ static  CPU_STK  AppTaskTCPServerStk[ APP_TASK_TCP_SERVERT_SIZE ];
 static  void  AppTaskStart  (void *p_arg);               //ÈÎÎñº¯ÊýÉùÃ÷
 static  void  AppTaskUSART1Check (void *p_arg);
 static  void  AppTaskTCPServer (void *p_arg);
-
+//static  void  AppTaskTCPPollDevice (void *p_arg);
 /*
 *********************************************************************************************************
 *                                                main()
@@ -191,6 +191,23 @@ static  void  AppTaskStart (void *p_arg)
                    (OS_ERR    *)&err);            //´íÎóÀàÐÍ									 
 									 
 	
+
+	
+     /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
+    OSTaskCreate((OS_TCB     *)&AppTaskTCPServerTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
+                 (CPU_CHAR   *)"App_Task_TCP_Server",                             //ÈÎÎñÃû³Æ
+                 (OS_TASK_PTR ) AppTaskTCPServer,                                //ÈÎÎñº¯Êý
+                 (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
+                 (OS_PRIO     ) APP_TASK_TCP_SERVER_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
+                 (CPU_STK    *)&AppTaskTCPServerStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
+                 (CPU_STK_SIZE) APP_TASK_TCP_SERVERT_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏÞÖÆÆäÔö³¤
+                 (CPU_STK_SIZE) APP_TASK_TCP_SERVERT_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
+                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êý
+                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊý£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
+                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
+                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
+                 (OS_ERR     *)&err);     
+	
   						 
      /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
     OSTaskCreate((OS_TCB     *)&AppTaskUSART1CheckTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
@@ -207,21 +224,20 @@ static  void  AppTaskStart (void *p_arg)
                  (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
                  (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàÐÍ
 
-
-     /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
-    OSTaskCreate((OS_TCB     *)&AppTaskTCPServerTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
-                 (CPU_CHAR   *)"App_Task_TCP_Server",                             //ÈÎÎñÃû³Æ
-                 (OS_TASK_PTR ) AppTaskTCPServer,                                //ÈÎÎñº¯Êý
-                 (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
-                 (OS_PRIO     ) APP_TASK_TCP_SERVER_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
-                 (CPU_STK    *)&AppTaskTCPServerStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
-                 (CPU_STK_SIZE) APP_TASK_TCP_SERVERT_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏÞÖÆÆäÔö³¤
-                 (CPU_STK_SIZE) APP_TASK_TCP_SERVERT_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
-                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êý
-                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊý£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
-                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
-                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
-                 (OS_ERR     *)&err);     
+//     /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
+//    OSTaskCreate((OS_TCB     *)&AppTaskPollDeviceTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
+//                 (CPU_CHAR   *)"App_Task_Poll_Device",                             //ÈÎÎñÃû³Æ
+//                 (OS_TASK_PTR ) AppTaskTCPPollDevice,                                //ÈÎÎñº¯Êý
+//                 (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
+//                 (OS_PRIO     ) APP_TASK_POLL_DEVICE_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
+//                 (CPU_STK    *)&AppTaskTCPPollDeviceStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
+//                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏÞÖÆÆäÔö³¤
+//                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
+//                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êý
+//                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊý£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
+//                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
+//                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
+//                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàÐÍ
 
 
 								 
@@ -236,26 +252,31 @@ static  void  AppTaskStart (void *p_arg)
 *                                 USART CHECK TASK
 *********************************************************************************************************
 */
+
+//static  void  AppTaskTCPPollDevice( void * p_arg )
+//{
+//	(void)p_arg;
+
+//	while (DEF_TRUE) 
+//	{ 
+//	}
+//}
+
+
+
 static  void  AppTaskUSART1Check( void * p_arg )
 {
 	OS_ERR      err;
 	CPU_SR_ALLOC();
 	
 //	uint8_t i=0;
-	uint8_t Addr=0x01;
+
 	uint8_t Check_Temp[20]={0};
 	
 	(void)p_arg;
-
-//uint8_t USART_Rx_Finsh = 0;
-//uint8_t USART_Rx_Buffer[20] = {0};
-//uint8_t USART_Rx_Count = 0;	
-	
-	
-	
-					 
+			 
 	while (DEF_TRUE) 
-		{      
+	{      
 			if(Addr>0x3f)
 			{
 			 Addr=0;
@@ -270,103 +291,84 @@ static  void  AppTaskUSART1Check( void * p_arg )
 			Check_Temp[5]=0x03;
 		 	
       USART1_Send_Data(Check_Temp,6);
-		
+	
+		  OSTaskSemPend ((OS_TICK   )3000,                     //ÎÞÆÚÏÞµÈ´ý
+									   (OS_OPT    )OS_OPT_PEND_BLOCKING,  //Èç¹ûÐÅºÅÁ¿²»¿ÉÓÃ¾ÍµÈ´ý
+									   (CPU_TS   *)0,                   //»ñÈ¡ÐÅºÅÁ¿±»·¢²¼µÄÊ±¼ä´Á
+									   (OS_ERR   *)&err);                 //·µ»Ø´íÎóÀàÐÍ			
+//	  	OSTimeDlyHMSM ( 0, 0, 3,0, OS_OPT_TIME_DLY, &err);	
 
-
-			
-//			for(i=0;i<6;i++)
-//			{
-//			 TCP_Send_Buffer[i]=(uint8_t)Check_Temp[i];			
-//			}			
-////			memcpy(TCP_Send_Buffer,(uint8_t *)Check_Temp,6);
-//			TCP_Send_Cnt=6;
-//      TCP_Send_Flag = 1;
-		
 			
 		OS_CRITICAL_ENTER();                                       //½øÈëÁÙ½ç¶Î£¬±ÜÃâ´®¿Ú´òÓ¡±»´ò¶Ï
 		
-//		Find_Device=(*(Msg+3)==Addr?1:0);
-//		
-//		
-//    if(Device_Exist)
-//		{ 
-//			if(Find_Device)        //Éè±¸´æÔÚÓÚÁ´±í²¢ÇÒ²éÕÒÓÐ»Ø¸´
-//			{
-//			//¶Ô±ÈÉè±¸µÄ×´Ì¬ÐÅÏ¢£¬¿´¿´ÊÇ·ñÓÐÐÂIOÌí¼Ó¡¢ÐÂ×´Ì¬¸üÐÂ			
-//        Updata_Node(Msg);		
-//			}
-//			else                 //Éè±¸´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÃ»ÓÐ»Ø¸´
-//			{
-//			//¶ÔÉè±¸½øÐÐoffline²Ù×÷£¬É¾³ý½Úµã
-//		    Delete_Node(Addr);		
-//			}
-//		  
-//		}
-//		else 
+//		if(USART_Rx_Finsh)
 //		{
-//			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓÐ»Ø¸´
+//		  if(USART_Rx_Buffer[4] == 0x20)
 //			{
-//			//Õâ¸öÊÇÐÂµÄÉè±¸¼ÓÈë£¬ÐèÒª²åÈë½Úµã£¬¸üÐÂ×´Ì¬
-//        Insert_Node(Msg); 	
+//			  if(USART_Rx_Buffer[3] == 	Addr)
+//				{
+//				  if(Device_Exist)
+//					{
+//            Updata_Node(USART_Rx_Buffer);											
+//					}
+//					else
+//					{
+//            Insert_Node(USART_Rx_Buffer); 						
+//					}
+//				}
+//				else
+//				{
+//					if(Device_Exist)
+//					{
+//		        Delete_Node(Addr);							
+//					}
+//				}
 //			}
-//			else               //Éè±¸²»´æÔÚÓÚÁ´±í£¬²éÕÒÒ²Ã»ÓÐ»Ø¸´   
+//			else
 //			{
-//			//Ã»ÓÐÕâ¸öÉè±¸£¬¼ÌÐø²éÕÒÏÂÒ»¸öÉè±¸
 //			
-//			}	
+//			
+//			}
+//			memset(USART_Rx_Buffer,0,USART_Rx_Count);
+//			USART_Rx_Count = 0;
+//			USART_Rx_Finsh = 0;
 //		}
+//		
+//		
+////		Find_Device=(*(Msg+3)==Addr?1:0);
+////		
+////		
+    if(Device_Exist)
+		{ 
+			if(Find_Device)        //Éè±¸´æÔÚÓÚÁ´±í²¢ÇÒ²éÕÒÓÐ»Ø¸´
+			{
+			//¶Ô±ÈÉè±¸µÄ×´Ì¬ÐÅÏ¢£¬¿´¿´ÊÇ·ñÓÐÐÂIOÌí¼Ó¡¢ÐÂ×´Ì¬¸üÐÂ			
+        Updata_Node(USART_Rx_Buffer);		
+			}
+			else                 //Éè±¸´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÃ»ÓÐ»Ø¸´
+			{
+			//¶ÔÉè±¸½øÐÐoffline²Ù×÷£¬É¾³ý½Úµã
+		    Delete_Node(Addr);		
+			}
+		  
+		}
+		else 
+		{
+			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓÐ»Ø¸´
+			{
+			//Õâ¸öÊÇÐÂµÄÉè±¸¼ÓÈë£¬ÐèÒª²åÈë½Úµã£¬¸üÐÂ×´Ì¬
+        Insert_Node(USART_Rx_Buffer); 	
+			}
+		}
 
+		memset(USART_Rx_Buffer,0,USART_Rx_Count);
+		USART_Rx_Count = 0;
+		Find_Device = 0;
+		
 		macLED2_TOGGLE();	
 		OS_CRITICAL_EXIT();                                        //ÍË³öÁÙ½ç¶Î							
 	  }
 }
-
-
-//static  void  AppTaskList(void *p_arg)
-//{
-//	OS_ERR      err;
-//  uint32_t *List_Msg=0;
-//	
-//  OS_MSG_SIZE List_Msg_Size;
-//	
-//	CPU_SR_ALLOC();
-//	
-//	(void)p_arg;
-
-//					 
-//	while (DEF_TRUE)
-//	{
-///* ×èÈûÈÎÎñ£¬µÈ´ýÈÎÎñÏûÏ¢ */
-//		 List_Msg = OSTaskQPend ((OS_TICK        )0,                    //ÎÞÆÚÏÞµÈ´ý
-//											       (OS_OPT         )OS_OPT_PEND_BLOCKING, //Ã»ÓÐÏûÏ¢¾Í×èÈûÈÎÎñ
-//											       (OS_MSG_SIZE   *)&List_Msg_Size,            //·µ»ØÏûÏ¢³¤¶È
-//											       (CPU_TS        *)0,                    //·µ»ØÏûÏ¢±»·¢²¼µÄÊ±¼ä´Á
-//											       (OS_ERR        *)&err);                //·µ»Ø´íÎóÀ
-
-//		OS_CRITICAL_ENTER();      		
-//	  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
-//								 (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
-//								 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
-//								 (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
-//								 (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
-//	
-//	  USART1_Send_Data(List_Msg,(u16)List_Msg_Size);
-//		macLED1_TOGGLE();	
-//		OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
-//								 (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
-//								 (OS_ERR    *)&err);                  //·µ»Ø´íÎóÀàÐÍ	
-
-//		
-//		
-//		
-//		OSMemPut ((OS_MEM  *)&Mem,                                 //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
-//							(void    *)List_Msg,                                 //ÄÚ´æ¿éµÄÊ×µØÖ·
-//							(OS_ERR  *)&err);		                             //·µ»Ø´íÎóÀàÐÍ	
-//		
-//    OS_CRITICAL_EXIT();                                        //ÍË³öÁÙ½ç¶Î							
-//		
-//	}
-//}
 
 static  void  AppTaskTCPServer (void *p_arg)
 {
@@ -390,7 +392,7 @@ static  void  AppTaskTCPServer (void *p_arg)
 		if((S0_Data & S_RECEIVE) == S_RECEIVE)//Èç¹ûSocket0½ÓÊÕµ½Êý¾Ý
 		{
 			S0_Data&=~S_RECEIVE;              //Çå³þ½ÓÊÕÊý¾Ý±êÖ¾Î»
-			Process_Socket_Data(0);           //W5500´¦Àí½ÓÊÕÊý¾ÝµÄº¯Êý		
+			Process_Socket_Recive_Data(0);           //W5500´¦Àí½ÓÊÕÊý¾ÝµÄº¯Êý		
 		}
 //		else if(time >= 500)                  //¶¨Ê±·¢ËÍ×Ö·û´®
 //		{
@@ -403,8 +405,6 @@ static  void  AppTaskTCPServer (void *p_arg)
 //		}
 		OSTimeDlyHMSM ( 0, 0, 0,10, OS_OPT_TIME_DLY, &err);	
 	}
-
-
 }	
 
 

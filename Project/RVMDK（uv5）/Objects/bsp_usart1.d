@@ -30,3 +30,29 @@
 .\objects\bsp_usart1.o: ..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h
 .\objects\bsp_usart1.o: ..\..\Libraries\FWlib\inc\misc.h
 .\objects\bsp_usart1.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\bsp_usart1.o: ..\..\User\APP\includes.h
+.\objects\bsp_usart1.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+.\objects\bsp_usart1.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\objects\bsp_usart1.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+.\objects\bsp_usart1.o: ..\..\User\uC-CPU\ARM-Cortex-M3\RealView\cpu.h
+.\objects\bsp_usart1.o: ..\..\User\uC-CPU\cpu_def.h
+.\objects\bsp_usart1.o: ..\..\User\APP\cpu_cfg.h
+.\objects\bsp_usart1.o: ..\..\User\uC-LIB\lib_def.h
+.\objects\bsp_usart1.o: ..\..\User\uC-LIB\lib_ascii.h
+.\objects\bsp_usart1.o: ..\..\User\uC-LIB\lib_math.h
+.\objects\bsp_usart1.o: ..\..\User\uC-CPU\cpu_core.h
+.\objects\bsp_usart1.o: ..\..\User\uC-LIB\lib_mem.h
+.\objects\bsp_usart1.o: ..\..\User\uC-CPU\cpu_core.h
+.\objects\bsp_usart1.o: ..\..\User\APP\lib_cfg.h
+.\objects\bsp_usart1.o: ..\..\User\uC-LIB\lib_str.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\bsp.h
+.\objects\bsp_usart1.o: ..\..\User\APP\app_cfg.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\led\bsp_led.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\Key\bsp_key.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\List\bsp_list.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\crc\bsp_crc8.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\w5500\W5500.h
+.\objects\bsp_usart1.o: ..\..\User\uCOS-III\Source\os.h
+.\objects\bsp_usart1.o: ..\..\User\APP\os_cfg.h
+.\objects\bsp_usart1.o: ..\..\User\uCOS-III\Source\os_type.h
+.\objects\bsp_usart1.o: ..\..\User\uCOS-III\Ports\ARM-Cortex-M3\Generic\RealView\os_cpu.h

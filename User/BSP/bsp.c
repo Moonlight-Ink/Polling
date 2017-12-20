@@ -168,6 +168,7 @@ void  BSP_Init (void)
 	Head=NodeCreat();			
 	
 	W5500_GPIOInit();           //控制5500的各个引脚初始化
+	
 }
 
 

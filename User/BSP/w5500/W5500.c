@@ -7,6 +7,7 @@
 #include "bsp_usart1.h"
 #include "bsp_cjson.h"
 #include <includes.h>
+extern OS_MUTEX Socket;
 
 /***************----- ÍøÂç²ÎÊı±äÁ¿¶¨Òå -----***************/
 unsigned char Gateway_IP[4];//Íø¹ØIPµØÖ· 
@@ -40,6 +41,8 @@ unsigned char S0_Data;		//¶Ë¿Ú0½ÓÊÕºÍ·¢ËÍÊı¾İµÄ×´Ì¬,1:¶Ë¿Ú½ÓÊÕµ½Êı¾İ,2:¶Ë¿Ú·¢ËÍÊ
 /***************----- ¶Ë¿ÚÊı¾İ»º³åÇø -----***************/
 unsigned char Rx_Buffer[500];	//¶Ë¿Ú½ÓÊÕÊı¾İ»º³åÇø 
 unsigned char Tx_Buffer[500];	//¶Ë¿Ú·¢ËÍÊı¾İ»º³åÇø 
+unsigned short int Tx_Buffer_Size;
+
 
 unsigned char W5500_Interrupt;	//W5500ÖĞ¶Ï±êÖ¾(0:ÎŞÖĞ¶Ï,1:ÓĞÖĞ¶Ï)
 
@@ -946,7 +949,7 @@ void W5500_Socket_Set(void)
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Process_Socket_Data
+* º¯ÊıÃû  : Process_Socket_Recive_Data
 * ÃèÊö    : W5500½ÓÊÕ²¢·¢ËÍ½ÓÊÕµ½µÄÊı¾İ
 * ÊäÈë    : s:¶Ë¿ÚºÅ
 * Êä³ö    : ÎŞ
@@ -956,15 +959,46 @@ void W5500_Socket_Set(void)
 *			´¦ÀíÍê±Ï£¬½«Êı¾İ´ÓTemp_Buffer¿½±´µ½Tx_Buffer»º³åÇø¡£µ÷ÓÃS_tx_process()
 *			·¢ËÍÊı¾İ¡£
 *******************************************************************************/
-void Process_Socket_Data(SOCKET s)
+void Process_Socket_Recive_Data(SOCKET s)
 {
 	unsigned short int size;
+	
+//	OS_ERR      err;	
+//	
+//	OSMutexPend ((OS_MUTEX  *)&Socket,                  //ÉêÇë»¥³âĞÅºÅÁ¿ mutex
+//							 (OS_TICK    )0,                       //ÎŞÆÚÏŞµÈ´ı
+//							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
+//							 (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
+//							 (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàĞÍ			
+	
 	size=Read_SOCK_Data_Buffer(s, Rx_Buffer);   //¶ÁÈ¡Êı¾İ£¬Êı¾İÁ¿±£³Öµ½size
   TCP_Cmd_Cjson_Analyze(Rx_Buffer,size);	
 	
-
-	memcpy(Tx_Buffer, Rx_Buffer, size);			//°Ñ½ÓÊÕµÄÊı¾İ£¬Ô­ÑùµÄ¿½±´µ½Tx_Buffer
-	Write_SOCK_Data_Buffer(s, Tx_Buffer, size); //Tx_BufferÊı¾İ·¢ËÍ×ß
-		memset(Rx_Buffer,0,size);
-			memset(Tx_Buffer,0,size);
+	memset(Rx_Buffer,0,size);
+	
+//	OSMutexPost ((OS_MUTEX  *)&Socket,                 //ÊÍ·Å»¥³âĞÅºÅÁ¿ mutex
+//							 (OS_OPT     )OS_OPT_POST_NONE,       //½øĞĞÈÎÎñµ÷¶È
+//							 (OS_ERR    *)&err);                  //·µ»Ø´íÎóÀàĞÍ			
+	
 }
+void Process_Socket_Send_Data(SOCKET s)
+{	
+	OS_ERR      err;	
+
+//	OSMutexPend ((OS_MUTEX  *)&Socket,                  //ÉêÇë»¥³âĞÅºÅÁ¿ mutex
+//							 (OS_TICK    )0,                       //ÎŞÆÚÏŞµÈ´ı
+//							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
+//							 (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
+//							 (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàĞÍ			
+	
+	Write_SOCK_Data_Buffer(s, Tx_Buffer,Tx_Buffer_Size); //Tx_BufferÊı¾İ·¢ËÍ×ß
+	
+	memset(Tx_Buffer,0,Tx_Buffer_Size);
+	Tx_Buffer_Size = 0;
+	
+//	OSMutexPost ((OS_MUTEX  *)&Socket,                 //ÊÍ·Å»¥³âĞÅºÅÁ¿ mutex
+//							 (OS_OPT     )OS_OPT_POST_NONE,       //½øĞĞÈÎÎñµ÷¶È
+//							 (OS_ERR    *)&err);                  //·µ»Ø´íÎóÀàĞÍ			
+	
+}
+

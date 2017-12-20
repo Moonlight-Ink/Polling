@@ -168,12 +168,14 @@ void SysTick_Handler(void)
   * @param  无
   * @retval 无
   */
-
+extern	uint8_t Addr;
+extern	uint8_t Find_Device;
+extern  OS_TCB AppTaskUSART1CheckTCB;
 void USART1_IRQHandler(void)
 {
   uint8_t  ch;
 	uint8_t i=0;
-
+  OS_ERR  err;
 		
 	if(USART_GetITStatus(USART1,USART_IT_RXNE)!=RESET )
 	{
@@ -184,11 +186,22 @@ void USART1_IRQHandler(void)
 		{
 			if(Re_Cnt == (Re_Temp[2]+4))
 			{
-				
-				memcpy(USART_Rx_Buffer,Re_Temp,Re_Cnt);
-				USART_Rx_Count = Re_Cnt;
-				USART_Rx_Finsh = 1;
-				
+				if(Re_Temp[4] == 0x20)
+				{
+					if(Re_Temp[3] == 	Addr)
+					{		
+						memcpy(USART_Rx_Buffer,Re_Temp,Re_Cnt);
+						USART_Rx_Count = Re_Cnt;
+						Find_Device = 1;
+            OSTaskSemPost((OS_TCB  *)&AppTaskUSART1CheckTCB,                              //目标任务
+						              (OS_OPT   )OS_OPT_POST_NONE,                             //没选项要求
+										      (OS_ERR  *)&err);     						
+					}
+				}	
+        else
+				{
+								
+				}					
 				memset(Re_Temp,0,Re_Cnt);
 				Re_Cnt = 0;
 			}

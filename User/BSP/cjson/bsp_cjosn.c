@@ -34,12 +34,12 @@ void TCP_Cmd_Cjson_Analyze(uint8_t *TCP_Cmd,uint16_t TCP_Cmd_Cnt)
 		}
 		else if(!strcmp(out->valuestring,"write"))
 		{
-			  USART1_Send_Data(tst,8);
-//			out=cJSON_GetObjectItem(root,"addr");
+//			  USART1_Send_Data(tst,8);
+			out=cJSON_GetObjectItem(root,"addr");
 //			if(Find_Node(cJSON_GetObjectItem(root,"addr")->valueint))
 //			{
-//			  Cmd_Ctronl(cJSON_GetObjectItem(root,"addr")->valueint,
-//			             cJSON_GetObjectItem(root,"relay")->valuestring);
+			  Cmd_Ctronl(cJSON_GetObjectItem(root,"addr")->valueint,
+			             cJSON_GetObjectItem(root,"relay")->valuestring);
 //			}
 		}
 		else if(!strcmp(out->valuestring,"heartbeat"))
@@ -55,7 +55,7 @@ void TCP_Cmd_Cjson_Analyze(uint8_t *TCP_Cmd,uint16_t TCP_Cmd_Cnt)
 
 void Cmd_Ctronl(uint8_t Addr,char *Ctrl)
 {
-//	OS_ERR      err;	
+	OS_ERR      err;	
 //		CPU_SR_ALLOC();
 	
 	uint8_t i=0,Relay;
@@ -113,14 +113,14 @@ void Cmd_Ctronl(uint8_t Addr,char *Ctrl)
 					Cmd_Buffer[7]=CRC8_Check(7,CRC_Buffer);	
 
 //		OS_CRITICAL_ENTER();    
-//          USART1_Send_Data1(Cmd_Buffer,8);
+          USART1_Send_Data(Cmd_Buffer,8);
 //	    OS_CRITICAL_EXIT();   				
-//					OSTimeDlyHMSM ( 0, 0, 1,0, OS_OPT_TIME_DLY, &err);	
+					OSTimeDlyHMSM ( 0, 0, 0,200, OS_OPT_TIME_DLY, &err);	
 				}				
 			}		  
 		}
 	}
-
+	 cJSON_Delete(item);  
 }
 
 
@@ -139,6 +139,13 @@ void Creat_Cjson_Heartbeat(uint8_t Addr)
 		 out=cJSON_Print(root);
 	   cJSON_Delete(root);
 
+//     if(!Tx_Buffer_Size)
+//		 {
+		  Tx_Buffer_Size = strlen(out);
+			memcpy(Tx_Buffer,(uint8_t*)out,Tx_Buffer_Size);
+			Process_Socket_Send_Data(0);
+//		 }
+		 
 //		 if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
 //		 {
 //			 TCP_Send_Cnt = strlen(out);
@@ -171,6 +178,14 @@ void Creat_Cjson_Report(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uin
   out=cJSON_Print(root);
 	cJSON_Delete(root);
 	
+	
+//	if(!Tx_Buffer_Size)
+//	{
+		Tx_Buffer_Size = strlen(out);
+	  memcpy(Tx_Buffer,(uint8_t*)out,Tx_Buffer_Size);
+	  Process_Socket_Send_Data(0);
+//	}
+	
 //  /*·¢ËÍº¯Êýrs485*/	
 //	printf("%s\n",out);
 
@@ -202,6 +217,14 @@ void Creat_Cjson_Offline(uint8_t Addr)
 	cJSON_AddNumberToObject(root,"addr",Addr);
   out=cJSON_Print(root);
 	cJSON_Delete(root);
+
+//	if(!Tx_Buffer_Size)
+//	{
+		Tx_Buffer_Size = strlen(out);
+	  memcpy(Tx_Buffer,(uint8_t*)out,Tx_Buffer_Size);
+	  Process_Socket_Send_Data(0);
+//	}
+
 	
 //	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
 //	{
@@ -234,6 +257,13 @@ void Creat_Cjson_Join(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num,uint8
 	cJSON_AddStringToObject(root,"relay",String2);
   out=cJSON_Print(root);
 	cJSON_Delete(root);
+
+//	if(!Tx_Buffer_Size)
+//	{
+		Tx_Buffer_Size = strlen(out);
+	  memcpy(Tx_Buffer,(uint8_t*)out,Tx_Buffer_Size);
+	  Process_Socket_Send_Data(0);
+//	}
 	
 //	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
 //	{
@@ -265,6 +295,13 @@ void Create_Cjson_Discovery(uint8_t *IO_Channel,uint8_t *IO_State,uint8_t IO_Num
 	cJSON_AddStringToObject(root,"io",String1);
   out=cJSON_Print(root);
 	cJSON_Delete(root);
+
+//	if(!Tx_Buffer_Size)
+//	{
+		Tx_Buffer_Size = strlen(out);
+	  memcpy(Tx_Buffer,(uint8_t*)out,Tx_Buffer_Size);
+	  Process_Socket_Send_Data(0);
+//	}
 	
 //	if(getSn_SR(SOCK_TCPS) == SOCK_ESTABLISHED)
 //	{

@@ -252,6 +252,8 @@ extern unsigned char S0_Data;		//端口0接收和发送数据的状态,1:端口接收到数据,2:端
 /***************----- 端口数据缓冲区 -----***************/
 extern unsigned char Rx_Buffer[500];	//端口接收数据缓冲区 
 extern unsigned char Tx_Buffer[500];	//端口发送数据缓冲区 
+extern unsigned short int Tx_Buffer_Size;
+
 
 extern unsigned char W5500_Interrupt;	//W5500中断标志(0:无中断,1:有中断)
 typedef unsigned char SOCKET;			//自定义端口号数据类型
@@ -273,8 +275,8 @@ extern void W5500_Interrupt_Process(void);//W5500中断处理程序框架
 void Load_Net_Parameters(void);
 void W5500_Initialization(void);
 void W5500_Socket_Set(void);
-void Process_Socket_Data(SOCKET s);
-
+void Process_Socket_Recive_Data(SOCKET s);
+void Process_Socket_Send_Data(SOCKET s);
 
 
 

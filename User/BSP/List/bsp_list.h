@@ -27,13 +27,13 @@ extern Node *Head;
 
 struct NODE *NodeCreat(void);
 
-void Insert_Node(uint32_t *Insert_Temp);
+void Insert_Node(uint8_t *Insert_Temp);
 uint8_t Find_Node(uint8_t address);
 void Delete_Node(uint8_t address);
 
-void Updata_Node(uint32_t *Temp);
+void Updata_Node(uint8_t *Temp);
 
-Data Array_to_structure(uint32_t *Trans_Temp);
+Data Array_to_structure(uint8_t *Trans_Temp);
 
 
 void Print_Node(void);

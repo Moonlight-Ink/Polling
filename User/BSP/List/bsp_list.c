@@ -90,7 +90,7 @@ void Query_Node(uint8_t Addr)
 }
 
 
-void Insert_Node(uint32_t *Insert_Temp)
+void Insert_Node(uint8_t *Insert_Temp)
 {
 	OS_ERR      err;	
 	
@@ -252,7 +252,7 @@ uint8_t Find_Node(uint8_t address)
 // 	Print_Node();
 // }
 
-void Updata_Node(uint32_t *Temp)
+void Updata_Node(uint8_t *Temp)
 {
 	OS_ERR      err;	
 	
@@ -405,7 +405,7 @@ void Print_Node(void)
  
 }
 
-Data Array_to_structure(uint32_t *Trans_Temp)
+Data Array_to_structure(uint8_t *Trans_Temp)
 {
 	uint8_t i=0;
   Data Trans;
