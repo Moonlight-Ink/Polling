@@ -45,29 +45,25 @@
 *********************************************************************************************************
 */
 OS_MUTEX List;                         //ÉùÃ÷»¥³âÐÅºÅÁ¿
+OS_MUTEX Usart;
+OS_MUTEX Socket;
+
 OS_SEM  SemOfPoll;
-OS_MEM  Mem;                    //ÉùÃ÷ÄÚ´æ¹ÜÀí¶ÔÏó
 
-uint8_t Array [ 3 ] [ 100 ];   //ÉùÃ÷ÄÚ´æ·ÖÇø´óÐ¡
-uint8_t Rx_Cnt=0;
-uint8_t Rx_Temp[20]={0};
-Node *Head;
+ Node *Head;
 
-	uint8_t Device_Exist=0;
-	uint8_t Find_Device=0;
-
+ uint8_t Device_Exist=0;
+ uint8_t Find_Device=0;
 /*
 *********************************************************************************************************
 *                                                 TCB
 *********************************************************************************************************
 */
 
-static  OS_TCB   AppTaskStartTCB;    //ÈÎÎñ¿ØÖÆ¿é
-
-       OS_TCB AppTaskCheckDeviceTCB;
-static OS_TCB AppTaskListTCB;
-static OS_TCB AppTaskTCPSERVERTCB;
-
+static OS_TCB AppTaskStartTCB;    //ÈÎÎñ¿ØÖÆ¿é
+ OS_TCB AppTaskUSART1CheckTCB;
+static OS_TCB AppTaskTCPServerTCB;
+ OS_TCB AppTaskPollDeviceTCB;
 
 
 /*
@@ -77,11 +73,9 @@ static OS_TCB AppTaskTCPSERVERTCB;
 */
 
 static  CPU_STK  AppTaskStartStk[APP_TASK_START_STK_SIZE];       //ÈÎÎñ¶ÑÕ»
-
-static  CPU_STK  AppTaskCheckDeviceStk[ APP_TASK_CHECK_DEVICE_SIZE ];
-static  CPU_STK  AppTaskListStk[ APP_TASK_LIST_SIZE ];
+static  CPU_STK  AppTaskUSART1CheckStk[ APP_TASK_USART1_CHECK_SIZE ];
 static  CPU_STK  AppTaskTCPServerStk[ APP_TASK_TCP_SERVERT_SIZE ];
-
+static  CPU_STK  AppTaskTCPPollDeviceStk[ APP_TASK_TCP_POLL_DEVICE_SIZE ];
 
 
 /*
@@ -91,11 +85,9 @@ static  CPU_STK  AppTaskTCPServerStk[ APP_TASK_TCP_SERVERT_SIZE ];
 */
 
 static  void  AppTaskStart  (void *p_arg);               //ÈÎÎñº¯ÊýÉùÃ÷
-
-static  void  AppTaskCheckDevice (void *p_arg);
-static  void  AppTaskList(void *p_arg);
+static  void  AppTaskUSART1Check (void *p_arg);
 static  void  AppTaskTCPServer (void *p_arg);
-
+static  void  AppTaskTCPPollDevice (void *p_arg);
 /*
 *********************************************************************************************************
 *                                                main()
@@ -187,49 +179,21 @@ static  void  AppTaskStart (void *p_arg)
                    (CPU_CHAR  *)"List", //ÐÅºÅÁ¿µÄÃû×Ö
                    (OS_ERR    *)&err);            //´íÎóÀàÐÍ
 									 
+				/* ´´½¨»¥³âÐÅºÅÁ¿ mutex */
+    OSMutexCreate ((OS_MUTEX  *)&Usart,           //Ö¸ÏòÐÅºÅÁ¿±äÁ¿µÄÖ¸Õë
+                   (CPU_CHAR  *)"Usart", //ÐÅºÅÁ¿µÄÃû×Ö
+                   (OS_ERR    *)&err);            //´íÎóÀàÐÍ
 									 
-		/* ´´½¨ÄÚ´æ¹ÜÀí¶ÔÏó mem */
-		OSMemCreate ((OS_MEM      *)&Mem,             //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
-								 (CPU_CHAR    *)"Mem For Test",   //ÃüÃûÄÚ´æ¹ÜÀí¶ÔÏó
-								 (void        *)Array,          //ÄÚ´æ·ÖÇøµÄÊ×µØÖ·
-								 (OS_MEM_QTY   )3,               //ÄÚ´æ·ÖÇøÖÐÄÚ´æ¿éÊýÄ¿
-								 (OS_MEM_SIZE  )100,                //ÄÚ´æ¿éµÄ×Ö½ÚÊýÄ¿
-								 (OS_ERR      *)&err);            //·µ»Ø´íÎóÀàÐÍ
+		/* ´´½¨»¥³âÐÅºÅÁ¿ mutex */
+    OSMutexCreate ((OS_MUTEX  *)&Socket,           //Ö¸ÏòÐÅºÅÁ¿±äÁ¿µÄÖ¸Õë
+                   (CPU_CHAR  *)"Socket", //ÐÅºÅÁ¿µÄÃû×Ö
+                   (OS_ERR    *)&err);            //´íÎóÀàÐÍ									 
+									 
 	
-  						 
+
+	
      /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
-    OSTaskCreate((OS_TCB     *)&AppTaskCheckDeviceTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
-                 (CPU_CHAR   *)"App_Task_Check_Device",                             //ÈÎÎñÃû³Æ
-                 (OS_TASK_PTR ) AppTaskCheckDevice,                                //ÈÎÎñº¯Êý
-                 (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
-                 (OS_PRIO     ) APP_TASK_CHECK_DEVICE_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
-                 (CPU_STK    *)&AppTaskCheckDeviceStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
-                 (CPU_STK_SIZE) APP_TASK_CHECK_DEVICE_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏÞÖÆÆäÔö³¤
-                 (CPU_STK_SIZE) APP_TASK_CHECK_DEVICE_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
-                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êý
-                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊý£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
-                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
-                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
-                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàÐÍ
-
-
-		/* ´´½¨ AppTaskPend ÈÎÎñ */
-    OSTaskCreate((OS_TCB     *)&AppTaskListTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
-                 (CPU_CHAR   *)"App Task Pend",                             //ÈÎÎñÃû³Æ
-                 (OS_TASK_PTR ) AppTaskList,                                //ÈÎÎñº¯Êý
-                 (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
-                 (OS_PRIO     ) APP_TASK_LIST_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
-                 (CPU_STK    *)&AppTaskListStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
-                 (CPU_STK_SIZE) APP_TASK_LIST_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏÞÖÆÆäÔö³¤
-                 (CPU_STK_SIZE) APP_TASK_LIST_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
-                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êý
-                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊý£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
-                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
-                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
-                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàÐÍ
-
-     /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
-    OSTaskCreate((OS_TCB     *)&AppTaskTCPSERVERTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
+    OSTaskCreate((OS_TCB     *)&AppTaskTCPServerTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
                  (CPU_CHAR   *)"App_Task_TCP_Server",                             //ÈÎÎñÃû³Æ
                  (OS_TASK_PTR ) AppTaskTCPServer,                                //ÈÎÎñº¯Êý
                  (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
@@ -242,6 +206,37 @@ static  void  AppTaskStart (void *p_arg)
                  (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
                  (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
                  (OS_ERR     *)&err);     
+	
+  						 
+//     /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
+//    OSTaskCreate((OS_TCB     *)&AppTaskUSART1CheckTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
+//                 (CPU_CHAR   *)"App_Task_Check_Device",                             //ÈÎÎñÃû³Æ
+//                 (OS_TASK_PTR ) AppTaskUSART1Check,                                //ÈÎÎñº¯Êý
+//                 (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
+//                 (OS_PRIO     ) APP_TASK_USART1_CHECK_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
+//                 (CPU_STK    *)&AppTaskUSART1CheckStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
+//                 (CPU_STK_SIZE) APP_TASK_USART1_CHECK_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏÞÖÆÆäÔö³¤
+//                 (CPU_STK_SIZE) APP_TASK_USART1_CHECK_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
+//                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êý
+//                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊý£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
+//                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
+//                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
+//                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàÐÍ
+
+     /*´´½¨ÂÖÑ¯²éÑ¯UsartÊý¾ÝÊÇ·ñ½ÓÊÕÍê±ÏÈÎÎñ*/		
+    OSTaskCreate((OS_TCB     *)&AppTaskPollDeviceTCB,                             //ÈÎÎñ¿ØÖÆ¿éµØÖ·
+                 (CPU_CHAR   *)"App_Task_Poll_Device",                             //ÈÎÎñÃû³Æ
+                 (OS_TASK_PTR ) AppTaskTCPPollDevice,                                //ÈÎÎñº¯Êý
+                 (void       *) 0,                                          //´«µÝ¸øÈÎÎñº¯Êý£¨ÐÎ²Îp_arg£©µÄÊµ²Î
+                 (OS_PRIO     ) APP_TASK_POLL_DEVICE_PRIO,                         //ÈÎÎñµÄÓÅÏÈ¼¶
+                 (CPU_STK    *)&AppTaskTCPPollDeviceStk[0],                          //ÈÎÎñ¶ÑÕ»µÄ»ùµØÖ·
+                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE / 10,                //ÈÎÎñ¶ÑÕ»¿Õ¼äÊ£ÏÂ1/10Ê±ÏÞÖÆÆäÔö³¤
+                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE,                     //ÈÎÎñ¶ÑÕ»¿Õ¼ä£¨µ¥Î»£ºsizeof(CPU_STK)£©
+                 (OS_MSG_QTY  ) 50u,                                        //ÈÎÎñ¿É½ÓÊÕµÄ×î´óÏûÏ¢Êý
+                 (OS_TICK     ) 0u,                                         //ÈÎÎñµÄÊ±¼äÆ¬½ÚÅÄÊý£¨0±íÄ¬ÈÏÖµOSCfg_TickRate_Hz/10£©
+                 (void       *) 0,                                          //ÈÎÎñÀ©Õ¹£¨0±í²»À©Õ¹£©
+                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //ÈÎÎñÑ¡Ïî
+                 (OS_ERR     *)&err);                                       //·µ»Ø´íÎóÀàÐÍ
 
 
 								 
@@ -256,215 +251,255 @@ static  void  AppTaskStart (void *p_arg)
 *                                 USART CHECK TASK
 *********************************************************************************************************
 */
-static  void  AppTaskCheckDevice( void * p_arg )
+
+static  void  AppTaskTCPPollDevice( void * p_arg )
 {
 	OS_ERR      err;
-  OS_MSG_SIZE Msg_size;
 	CPU_SR_ALLOC();
-	
-	uint8_t i=0;
-	uint8_t Addr=0x01;
-	uint32_t Check_Temp[20]={0};
-	uint32_t *Msg=0;
-//	uint8_t Device_Exist=0;
-//	uint8_t Find_Device=0;
-	
+	uint8_t Poll_Addr = 0x01;
 	(void)p_arg;
 
-					 
 	while (DEF_TRUE) 
-		{      
-			if(Addr>0x3f)
-			{
-			 Addr=0;
-			}
-			OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
-									 (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
-									 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
-									 (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
-									 (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ	
-
-      Device_Exist=Find_Node(Addr);
-			
-		  OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
-								   (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
-								   (OS_ERR    *)&err);   	
-			
-			Check_Temp[0]=0xad;
-			Check_Temp[1]=0xda;
-			Check_Temp[2]=0x02;
-			Check_Temp[3]=Addr;
-			Check_Temp[4]=0x20;
-			Check_Temp[5]=0x03;
-		 	
-      USART1_Send_Data(Check_Temp,6);
-			
-//			for(i=0;i<6;i++)
-//			{
-//			 TCP_Send_Buffer[i]=(uint8_t)Check_Temp[i];			
-//			}			
-////			memcpy(TCP_Send_Buffer,(uint8_t *)Check_Temp,6);
-//			TCP_Send_Cnt=6;
-//      TCP_Send_Flag = 1;
-			
-
-			
-		/* ×èÈûÈÎÎñ£¬µÈ´ýÈÎÎñÏûÏ¢ */
-		 Msg = OSTaskQPend ((OS_TICK        )5000,                    //ÎÞÆÚÏÞµÈ´ý
-											  (OS_OPT         )OS_OPT_PEND_BLOCKING, //Ã»ÓÐÏûÏ¢¾Í×èÈûÈÎÎñ
-											  (OS_MSG_SIZE   *)&Msg_size,            //·µ»ØÏûÏ¢³¤¶È
-											  (CPU_TS        *)0,                    //·µ»ØÏûÏ¢±»·¢²¼µÄÊ±¼ä´Á
-											  (OS_ERR        *)&err);                //·µ»Ø´íÎóÀàÐÍ
-			
-		OS_CRITICAL_ENTER();                                       //½øÈëÁÙ½ç¶Î£¬±ÜÃâ´®¿Ú´òÓ¡±»´ò¶Ï
-		
-		Find_Device=(*(Msg+3)==Addr?1:0);
-		
-		
-    if(Device_Exist)
-		{ 
-			if(Find_Device)        //Éè±¸´æÔÚÓÚÁ´±í²¢ÇÒ²éÕÒÓÐ»Ø¸´
-			{
-			//¶Ô±ÈÉè±¸µÄ×´Ì¬ÐÅÏ¢£¬¿´¿´ÊÇ·ñÓÐÐÂIOÌí¼Ó¡¢ÐÂ×´Ì¬¸üÐÂ
-				
-			  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
-									   (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
-									   (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
-									   (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
-									   (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
-				
-        Updata_Node(Msg);
-
-		    OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
-								     (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
-								     (OS_ERR    *)&err); 				
-			
-			}
-			else                 //Éè±¸´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÃ»ÓÐ»Ø¸´
-			{
-			//¶ÔÉè±¸½øÐÐoffline²Ù×÷£¬É¾³ý½Úµã
-				
-        OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
-									   (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
-									   (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
-									   (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
-									   (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
-
-		    Delete_Node(Addr);		
-
-		    OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
-								     (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
-								     (OS_ERR    *)&err); 	
-			}
-		  
-		}
-		else 
+	{ 
+		if(Poll_Addr>0x10)
 		{
-			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓÐ»Ø¸´
-			{
-			//Õâ¸öÊÇÐÂµÄÉè±¸¼ÓÈë£¬ÐèÒª²åÈë½Úµã£¬¸üÐÂ×´Ì¬
-			  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
-									   (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
-									   (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
-									   (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
-									   (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
+			Poll_Addr=1;
+		}	
+		
+    Check_Device_Cmd_Buffer(Poll_Addr);
+		
+		OSTaskSemPend ((OS_TICK   )50,                     //ÎÞÆÚÏÞµÈ´ý
+									 (OS_OPT    )OS_OPT_PEND_BLOCKING,  //Èç¹ûÐÅºÅÁ¿²»¿ÉÓÃ¾ÍµÈ´ý
+									 (CPU_TS   *)0,                   //»ñÈ¡ÐÅºÅÁ¿±»·¢²¼µÄÊ±¼ä´Á
+									 (OS_ERR   *)&err);                 //·µ»Ø´íÎóÀàÐÍ		
 
-        Insert_Node(Msg); 
-				
-		    OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
-								     (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
-								     (OS_ERR    *)&err); 				
-				
-				
+		OS_CRITICAL_ENTER();                                       //?????,?????????    
+    
+		if(USART_Rx_Count)                              //´®¿ÚÊÕµ½cmdÎª0x20µÄ»Ø¸´Êý¾Ý
+		{
+			if(USART_Rx_Buffer[3] == Poll_Addr)
+			{
+		    if(Find_Node(Poll_Addr))
+				{
+				  Check_Node_Status(USART_Rx_Buffer);							
+				}
+				else
+				{
+				  Insert_Node(USART_Rx_Buffer); 								
+				}
+        Poll_Addr++;				
 			}
-			else               //Éè±¸²»´æÔÚÓÚÁ´±í£¬²éÕÒÒ²Ã»ÓÐ»Ø¸´   
+			else
 			{
-			//Ã»ÓÐÕâ¸öÉè±¸£¬¼ÌÐø²éÕÒÏÂÒ»¸öÉè±¸
-			
-			}	
+				if(Find_Node(USART_Rx_Buffer[3]))
+				{
+				  Check_Node_Status(USART_Rx_Buffer);			
+				}
+			}
 		}
+		else
+		{
+		  if(Find_Node(Poll_Addr))
+      {
+		    Delete_Node(Poll_Addr);	
+			}				
+        Poll_Addr++;				
+		}
+//		
+//		Device_Exist=Find_Node(Poll_Addr);		
+// 	   
+//		 
+//		 
+//    if(USART_Rx_Buffer[3] == Poll_Addr)
+//		{
+//	    if(Device_Exist)
+//			{
+//       Check_Node_Status(USART_Rx_Buffer);				
+//			}
+//			else
+//			{
+//			  Insert_Node(USART_Rx_Buffer); 		
+//			}					
+//		}
+//		else
+//		{
+//			if(Device_Exist)
+//			{
+//		    Delete_Node(Poll_Addr);							
+//			}
+//		}
+//		if(USART_Rx_Buffer[3] == Query_Address)
+//    {
+//		 Query_Address = 0;
+//		}
+//    Find_Device = 0;	
+		memset(USART_Rx_Buffer,0,USART_Rx_Count);
+		USART_Rx_Count = 0;
+		
+//		Poll_Addr++;	
 
 
-		/* ÍË»¹ÄÚ´æ¿é */
-		OSMemPut ((OS_MEM  *)&Mem,                                 //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
-							(void    *)Msg,                                 //ÄÚ´æ¿éµÄÊ×µØÖ·
-							(OS_ERR  *)&err);		                             //·µ»Ø´íÎóÀàÐÍ				
-
-		macLED2_TOGGLE();	
-		OS_CRITICAL_EXIT();                                        //ÍË³öÁÙ½ç¶Î							
-	  }
+//		
+//		if(Find_Device)
+//		{
+//		  if(Device_Exist)
+//			{
+//       Check_Node_Status(USART_Rx_Buffer);				
+//			}
+//			else
+//			{
+//			  Insert_Node(USART_Rx_Buffer); 		
+//			}
+//      Find_Device = 0;	
+//			memset(USART_Rx_Buffer,0,USART_Rx_Count);
+//			USART_Rx_Count = 0;
+//		}
+//		else
+//		{
+//			if(Device_Exist)
+//			{
+//		    Delete_Node(Addr);							
+//			}
+//		}		
+//		Addr++;	
+		OS_CRITICAL_EXIT();                                        //?????			
+	}
 }
 
 
-static  void  AppTaskList(void *p_arg)
+
+static  void  AppTaskUSART1Check( void * p_arg )
 {
 	OS_ERR      err;
-  uint32_t *List_Msg=0;
-	
-  OS_MSG_SIZE List_Msg_Size;
-	
-	CPU_SR_ALLOC();
-	
+
 	(void)p_arg;
+			 
+	while (DEF_TRUE) 
+	{      
+    	
 
-					 
-	while (DEF_TRUE)
-	{
-/* ×èÈûÈÎÎñ£¬µÈ´ýÈÎÎñÏûÏ¢ */
-		 List_Msg = OSTaskQPend ((OS_TICK        )0,                    //ÎÞÆÚÏÞµÈ´ý
-											       (OS_OPT         )OS_OPT_PEND_BLOCKING, //Ã»ÓÐÏûÏ¢¾Í×èÈûÈÎÎñ
-											       (OS_MSG_SIZE   *)&List_Msg_Size,            //·µ»ØÏûÏ¢³¤¶È
-											       (CPU_TS        *)0,                    //·µ»ØÏûÏ¢±»·¢²¼µÄÊ±¼ä´Á
-											       (OS_ERR        *)&err);                //·µ»Ø´íÎóÀ
+	  OSTaskSemPend ((OS_TICK   )0,                     //ÎÞÆÚÏÞµÈ´ý
+									 (OS_OPT    )OS_OPT_PEND_BLOCKING,  //Èç¹ûÐÅºÅÁ¿²»¿ÉÓÃ¾ÍµÈ´ý
+									 (CPU_TS   *)0,                   //»ñÈ¡ÐÅºÅÁ¿±»·¢²¼µÄÊ±¼ä´Á
+									 (OS_ERR   *)&err);                 //·µ»Ø´íÎóÀàÐÍ	
 
-		OS_CRITICAL_ENTER();      		
-	  OSMutexPend ((OS_MUTEX  *)&List,                  //ÉêÇë»¥³âÐÅºÅÁ¿ mutex
-								 (OS_TICK    )0,                       //ÎÞÆÚÏÞµÈ´ý
-								 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //Èç¹ûÉêÇë²»µ½¾Í¶ÂÈûÈÎÎñ
-								 (CPU_TS    *)0,                       //²»Ïë»ñµÃÊ±¼ä´Á
-								 (OS_ERR    *)&err);                   //·µ»Ø´íÎóÀàÐÍ		
-	
-	  USART1_Send_Data(List_Msg,(u16)List_Msg_Size);
-		macLED1_TOGGLE();	
-		OSMutexPost ((OS_MUTEX  *)&List,                 //ÊÍ·Å»¥³âÐÅºÅÁ¿ mutex
-								 (OS_OPT     )OS_OPT_POST_NONE,       //½øÐÐÈÎÎñµ÷¶È
-								 (OS_ERR    *)&err);                  //·µ»Ø´íÎóÀàÐÍ	
+	  OSTimeDlyHMSM ( 0, 0, 0,10, OS_OPT_TIME_DLY, &err);					
+
+
 
 		
-		
-		
-		OSMemPut ((OS_MEM  *)&Mem,                                 //Ö¸ÏòÄÚ´æ¹ÜÀí¶ÔÏó
-							(void    *)List_Msg,                                 //ÄÚ´æ¿éµÄÊ×µØÖ·
-							(OS_ERR  *)&err);		                             //·µ»Ø´íÎóÀàÐÍ	
-		
-    OS_CRITICAL_EXIT();                                        //ÍË³öÁÙ½ç¶Î							
-		
-	}
+		if(USART_Rx_Buffer[4] == 0x20)
+		{
+//			if(USART_Rx_Buffer[3] == 	Poll_Addr)
+//			{
+				if(!Find_Device)
+				{
+					Find_Device = 1;
+				}
+				
+//				if(Device_Exist)
+//				{
+//          Updata_Node(USART_Rx_Buffer);											
+//				}
+//				else
+//				{
+//          Insert_Node(USART_Rx_Buffer); 						
+//				}
+//			  
+				OSTaskSemPost((OS_TCB  *)&AppTaskTCPPollDevice,                              //Ä¿±êÈÎÎñ
+									  	(OS_OPT   )OS_OPT_POST_NONE,                             //Ã»Ñ¡ÏîÒªÇó
+										  (OS_ERR  *)&err);   						
+			}
+//			else
+//			{
+//				if(Device_Exist)
+//				{
+//		      Delete_Node(Addr);							
+//				}
+//			}
+//		}
+		else
+		{
+			
+			
+		}
+
+			
+
+
+ 		
+//		
+//		
+////		Find_Device=(*(Msg+3)==Addr?1:0);
+////		
+////		
+//    if(Device_Exist)
+//		{ 
+//			if(Find_Device)        //Éè±¸´æÔÚÓÚÁ´±í²¢ÇÒ²éÕÒÓÐ»Ø¸´
+//			{
+//			//¶Ô±ÈÉè±¸µÄ×´Ì¬ÐÅÏ¢£¬¿´¿´ÊÇ·ñÓÐÐÂIOÌí¼Ó¡¢ÐÂ×´Ì¬¸üÐÂ			
+//        Updata_Node(USART_Rx_Buffer);		
+//			}
+//			else                 //Éè±¸´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÃ»ÓÐ»Ø¸´
+//			{
+//			//¶ÔÉè±¸½øÐÐoffline²Ù×÷£¬É¾³ý½Úµã
+//		    Delete_Node(Addr);		
+//			}
+//		  
+//		}
+//		else 
+//		{
+//			if(Find_Device)    //Éè±¸²»´æÔÚÓÚÁ´±í£¬µ«ÊÇ²éÕÒÓÐ»Ø¸´
+//			{
+//			//Õâ¸öÊÇÐÂµÄÉè±¸¼ÓÈë£¬ÐèÒª²åÈë½Úµã£¬¸üÐÂ×´Ì¬
+//        Insert_Node(USART_Rx_Buffer); 	
+//			}
+//		}
+
+//		memset(USART_Rx_Buffer,0,USART_Rx_Count);
+//		USART_Rx_Count = 0;
+//		Find_Device = 0;
+//		
+		macLED2_TOGGLE();	
+//		OS_CRITICAL_EXIT();                                        //ÍË³öÁÙ½ç¶Î							
+	  }
 }
 
 static  void  AppTaskTCPServer (void *p_arg)
 {
 	
-	OS_ERR      err;	
+	OS_ERR      err;
 	(void)p_arg;
-	
-	
-	W5500_GPIO_Init();
-	W5500_Hardware_Reset();  //Ó²¼þ¸´Î»W5500		
-	W5500_Parameters_Init();		//W5500³õÊ¼ÅäÖÃ
-
-	printf(" Ò°»ðÍøÂçÊÊÅä°æ×÷ÎªTCP ·þÎñÆ÷£¬½¨Á¢ÕìÌý£¬µÈ´ýPC×÷ÎªTCP Client½¨Á¢Á¬½Ó \r\n");
-	printf(" W5500¼àÌý¶Ë¿ÚÎª£º %d \r\n",local_port);
-	printf(" Á¬½Ó³É¹¦ºó£¬TCP Client·¢ËÍÊý¾Ý¸øW5500£¬W5500½«·µ»Ø¶ÔÓ¦Êý¾Ý \r\n");	
 		
+	Load_Net_Parameters();		//×°ÔØÍøÂç²ÎÊý	
+	W5500_Hardware_Reset();		//Ó²¼þ¸´Î»W5500	
+	W5500_Initialization();		//W5500³õÊ¼ÅäÖÃ
+	
 	
 	while (DEF_TRUE)
 	{
-		do_tcp_server();
-		OSTimeDlyHMSM ( 0, 0, 0,50, OS_OPT_TIME_DLY, &err);	
+		W5500_Socket_Set();            //W5500¶Ë¿Ú³õÊ¼»¯ÅäÖÃ		
+		
+		if(W5500_Interrupt)            //Èç¹ûW5500_Interrupt±êÖ¾Î»ÖÃÎ»£¬±íÊ¾ÖÐ¶Ï·¢Éú£¬´¦ÀíW5500ÖÐ¶Ï		
+		{
+			W5500_Interrupt_Process(); //W5500ÖÐ¶Ï´¦Àí³ÌÐò
+		}
+		if((S0_Data & S_RECEIVE) == S_RECEIVE)//Èç¹ûSocket0½ÓÊÕµ½Êý¾Ý
+		{
+			S0_Data&=~S_RECEIVE;              //Çå³þ½ÓÊÕÊý¾Ý±êÖ¾Î»
+			Process_Socket_Recive_Data(0);           //W5500´¦Àí½ÓÊÕÊý¾ÝµÄº¯Êý		
+		}
+//		else if(time >= 500)                  //¶¨Ê±·¢ËÍ×Ö·û´®
+//		{
+//			time=0;                           //Çå³ýtime                     
+//			if(S0_State == (S_INIT|S_CONN))   //Èç¹û¶Ë¿Ú³õÊ¼»¯³É¹¦£¬ÇÒÁ¬½Ó³É¹¦
+//			{
+//				S0_Data&=~S_TRANSMITOK;	                                             //Çå³ý·¢ËÍ±êÖ¾	
+//				Write_SOCK_Data_Buffer(0, TxPtr, strlen((const char*)TxPtr));  //¶Ë¿Ú0·¢ËÍÊý¾Ý
+//			}			                      
+//		}
+		OSTimeDlyHMSM ( 0, 0, 0,10, OS_OPT_TIME_DLY, &err);	
 	}
-
-
 }	
 
 

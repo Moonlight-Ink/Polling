@@ -36,9 +36,6 @@
 ".\objects\bsp_cjosn.o"
 ".\objects\cjson.o"
 ".\objects\malloc.o"
-".\objects\bsp_i2c_eeprom.o"
-".\objects\bsp_i2c_gpio.o"
-".\objects\bsp_spi.o"
 ".\objects\bsp_crc8.o"
 ".\objects\cpu_core.o"
 ".\objects\cpu_a.o"
@@ -68,11 +65,7 @@
 ".\objects\os_var.o"
 ".\objects\os_cpu_a.o"
 ".\objects\os_cpu_c.o"
-".\objects\w5500_conf.o"
 ".\objects\w5500.o"
-".\objects\socket.o"
-".\objects\utility.o"
-".\objects\tcp_demo.o"
 --library_type=microlib --strict --scatter ".\Objects\ISO-STM32.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

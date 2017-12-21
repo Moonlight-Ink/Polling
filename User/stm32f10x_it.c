@@ -28,16 +28,10 @@
 #include <includes.h>
 #include <string.h>
 #include "bsp_usart1.h"
+#include "w5500.h"
 
-
-
-
-
-extern  OS_MEM    Mem;
-uint32_t *Mem_blk;
 u8 Re_Temp[20]={0};	
 u8 Re_Cnt=0;		
-extern  OS_TCB   AppTaskCheckDeviceTCB;
 
 
 /** @addtogroup STM32F10x_StdPeriph_Template
@@ -175,44 +169,53 @@ void SysTick_Handler(void)
   * @retval 无
   */
 
+extern   OS_TCB AppTaskPollDeviceTCB;
+
+extern uint8_t Cmd_Control_Addr;
+extern uint8_t Cmd_Control_Response;
+
 void USART1_IRQHandler(void)
 {
-	OS_ERR err;
-	
   uint8_t  ch;
-	uint8_t i=0;
-	
-	OSIntEnter(); 	                                     //进入中断
+  OS_ERR  err;
+
 		
 	if(USART_GetITStatus(USART1,USART_IT_RXNE)!=RESET )
 	{
-		ch = USART_ReceiveData(USART1);     //获取接收到的数据
+		ch = USART_ReceiveData(USART1);    
 		Re_Temp[Re_Cnt++]=ch;
 		
 		if(Re_Temp[0]==0xad)
 		{
 			if(Re_Cnt == (Re_Temp[2]+4))
-			{
-				if(Re_Temp[4]==0x20)
+			{		
+				if(Re_Temp[4] == 0x20)
 				{
-				
-					Mem_blk = OSMemGet((OS_MEM *)&Mem,
-														 (OS_ERR *)&err);
-					
-					for(i=0;i<Re_Cnt;i++)
-					{
-					*(Mem_blk+i)=*(Re_Temp+i);				
-					}
-					
-					/* 发布任务消息到任务 AppTaskUsart */
-					OSTaskQPost ((OS_TCB      *)&AppTaskCheckDeviceTCB,      //目标任务的控制块
-											 (void        *)Mem_blk,             //消息内容的首地址
-											 (OS_MSG_SIZE  )Re_Cnt,                     //消息长度
-											 (OS_OPT       )OS_OPT_POST_FIFO,      //发布到任务消息队列的入口端
-											 (OS_ERR      *)&err);                 //返回错误类型
-				 }						 
-				memset(Re_Temp,0,20);
-				Re_Cnt=0;	
+//					if(Re_Temp[3] == Addr)
+//					{
+						 if(!USART_Rx_Count)
+						 {
+							 memcpy(USART_Rx_Buffer,Re_Temp,Re_Cnt);
+							 USART_Rx_Count = Re_Cnt;
+							 
+//							 if(!Find_Device)
+//							 {
+//							   Find_Device = 1;
+//							 }
+							 
+							 OSTaskSemPost((OS_TCB  *)&AppTaskPollDeviceTCB,                              //目标任务
+										         (OS_OPT   )OS_OPT_POST_NONE,                             //没选项要求
+										         (OS_ERR  *)&err);   	
+//						 }
+					   }
+//					else if(Re_Temp[4] == 0x60)
+//					{
+//					  if(Re_Temp[3] == Cmd_Control_Addr)
+//					    Cmd_Control_Response = 1;
+//					}					
+				}					
+				memset(Re_Temp,0,Re_Cnt);
+				Re_Cnt = 0;			
 			}
 			else if(Re_Cnt > (Re_Temp[2]+4))
 			{
@@ -226,11 +229,16 @@ void USART1_IRQHandler(void)
 		 Re_Cnt=0;	
 		}				 
 	}
-	
-	OSIntExit();	                                       //退出中断	
 }
 
-
+void EXTI4_IRQHandler(void)
+{
+	if(EXTI_GetITStatus(EXTI_Line4) != RESET)
+	{
+		EXTI_ClearITPendingBit(EXTI_Line4);
+		W5500_Interrupt=1;//W5500_Interrupt标志位置位，通知主函数，中断发生
+	}
+}
 
 
 /******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

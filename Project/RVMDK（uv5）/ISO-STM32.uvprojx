@@ -369,7 +369,7 @@
               <MiscControls></MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\Libraries\FWlib\inc;..\..\User;..\..\User\APP;..\..\User\BSP;..\..\User\BSP\Key;..\..\User\BSP\led;..\..\User\BSP\usart;..\..\User\uC-CPU;..\..\User\uC-CPU\ARM-Cortex-M3\RealView;..\..\User\uC-LIB;..\..\User\uCOS-III\Source;..\..\User\uCOS-III\Ports\ARM-Cortex-M3\Generic\RealView;..\..\User\BSP\List;..\..\User\BSP\cjson;..\..\User\BSP\malloc;..\..\User\BSP\Ethernet\Internet;..\..\User\BSP\Ethernet\W5500;..\..\User\BSP\I2C_EEPROM;..\..\User\BSP\spi;..\..\User\BSP\crc</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\Libraries\FWlib\inc;..\..\User;..\..\User\APP;..\..\User\BSP;..\..\User\BSP\Key;..\..\User\BSP\led;..\..\User\BSP\usart;..\..\User\uC-CPU;..\..\User\uC-CPU\ARM-Cortex-M3\RealView;..\..\User\uC-LIB;..\..\User\uCOS-III\Source;..\..\User\uCOS-III\Ports\ARM-Cortex-M3\Generic\RealView;..\..\User\BSP\List;..\..\User\BSP\cjson;..\..\User\BSP\malloc;..\..\User\BSP\crc;..\..\User\BSP\w5500</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -723,36 +723,6 @@
               <FilePath>..\..\User\BSP\malloc\malloc.h</FilePath>
             </File>
             <File>
-              <FileName>bsp_I2C_EEPROM.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_I2C_EEPROM.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\I2C_EEPROM\bsp_I2C_EEPROM.h</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_I2C_GPIO.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_I2C_GPIO.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\I2C_EEPROM\bsp_I2C_GPIO.h</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_SPI.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\spi\bsp_SPI.c</FilePath>
-            </File>
-            <File>
-              <FileName>bsp_SPI.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\spi\bsp_SPI.h</FilePath>
-            </File>
-            <File>
               <FileName>bsp_crc8.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\User\BSP\crc\bsp_crc8.c</FilePath>
@@ -983,64 +953,14 @@
           <GroupName>W5500</GroupName>
           <Files>
             <File>
-              <FileName>w5500_conf.c</FileName>
+              <FileName>W5500.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\w5500_conf.c</FilePath>
+              <FilePath>..\..\User\BSP\w5500\W5500.c</FilePath>
             </File>
             <File>
-              <FileName>w5500_conf.h</FileName>
+              <FileName>W5500.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\w5500_conf.h</FilePath>
-            </File>
-            <File>
-              <FileName>w5500.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\w5500.c</FilePath>
-            </File>
-            <File>
-              <FileName>w5500.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\w5500.h</FilePath>
-            </File>
-            <File>
-              <FileName>socket.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\socket.c</FilePath>
-            </File>
-            <File>
-              <FileName>socket.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\socket.h</FilePath>
-            </File>
-            <File>
-              <FileName>utility.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\utility.c</FilePath>
-            </File>
-            <File>
-              <FileName>utility.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\utility.h</FilePath>
-            </File>
-            <File>
-              <FileName>types.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\W5500\types.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Internet</GroupName>
-          <Files>
-            <File>
-              <FileName>tcp_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\Internet\tcp_demo.c</FilePath>
-            </File>
-            <File>
-              <FileName>tcp_demo.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\User\BSP\Ethernet\Internet\tcp_demo.h</FilePath>
+              <FilePath>..\..\User\BSP\w5500\W5500.h</FilePath>
             </File>
           </Files>
         </Group>

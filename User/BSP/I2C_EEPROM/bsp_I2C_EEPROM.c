@@ -18,7 +18,6 @@
 #include "bsp_I2C_EEPROM.h"
 #include "bsp_i2c_gpio.h"
 #include "bsp_usart1.h" 
-#include "types.h"
 /*
 *********************************************************************************************************
 *	º¯ Êý Ãû: ee_CheckOk

@@ -5,6 +5,10 @@
 #include "stm32f10x.h"
 #include <stdio.h>
 
+extern uint8_t USART_Rx_Finsh;
+extern uint8_t USART_Rx_Buffer[20];
+extern uint8_t USART_Rx_Count;
+
 
 
 /**************************USART参数定义********************************/
@@ -23,10 +27,10 @@
 #define             macUSART_INT_FUN                         USART1_IRQHandler
 
 void USART1_Send(uint8_t data);
-void USART1_Send_Data(volatile u32 *buf,u16 len);
-void USART1_Send_Data1(volatile u8 *buf,u8 len);
-void                USARTx_Config                           ( void );
+void USART1_Send_Data(volatile u8 *buf,u8 len);
+void USARTx_Config( void );
 extern  void NVIC_Configuration(void);
-
+void Check_Device_Cmd_Buffer(uint8_t Check_Addr);
+void TCP_Cmd_Control_Device(uint8_t Control_Addr,uint8_t Control_Relay_Num,uint8_t Control_Relay_State);
 
 #endif /* __USART1_H */
