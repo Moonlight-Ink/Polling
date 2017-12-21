@@ -985,20 +985,20 @@ void Process_Socket_Send_Data(SOCKET s)
 {	
 	OS_ERR      err;	
 
-//	OSMutexPend ((OS_MUTEX  *)&Socket,                  //申请互斥信号量 mutex
-//							 (OS_TICK    )0,                       //无期限等待
-//							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
-//							 (CPU_TS    *)0,                       //不想获得时间戳
-//							 (OS_ERR    *)&err);                   //返回错误类型			
+	OSMutexPend ((OS_MUTEX  *)&Socket,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型			
 	
 	Write_SOCK_Data_Buffer(s, Tx_Buffer,Tx_Buffer_Size); //Tx_Buffer数据发送走
 	
 	memset(Tx_Buffer,0,Tx_Buffer_Size);
 	Tx_Buffer_Size = 0;
 	
-//	OSMutexPost ((OS_MUTEX  *)&Socket,                 //释放互斥信号量 mutex
-//							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
-//							 (OS_ERR    *)&err);                  //返回错误类型			
+	OSMutexPost ((OS_MUTEX  *)&Socket,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err);                  //返回错误类型			
 	
 }
 

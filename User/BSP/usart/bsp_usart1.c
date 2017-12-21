@@ -16,7 +16,7 @@
   */
   
 #include "bsp_usart1.h"
-
+#include "bsp_crc8.h"
 #include <includes.h>
 
 extern OS_MUTEX Usart;
@@ -91,16 +91,61 @@ void USARTx_Config(void)
 	USART_Cmd(macUSARTx, ENABLE);
 }
 
+void Check_Device_Cmd_Buffer(uint8_t Check_Addr)
+{
+	uint8_t Check_Buffer[6];
+	
+  Check_Buffer[0] = 0xad;
+	Check_Buffer[1] = 0xda;
+	Check_Buffer[2] = 0x02;
+	Check_Buffer[3] = Check_Addr;
+	Check_Buffer[4] = 0x20;
+	Check_Buffer[5] = 0x03;
+		
+  USART1_Send_Data(Check_Buffer,6);		
+}
+
+void TCP_Cmd_Control_Device(uint8_t Control_Addr,uint8_t Control_Relay_Num,uint8_t Control_Relay_State)
+{
+	uint8_t Write_Buffer[8] = {0};
+	uint8_t Write_CRC_Buffer[7]= {0};
+	
+	Write_Buffer[0]=0xad;
+	Write_CRC_Buffer[0]=Write_Buffer[0];
+						
+	Write_Buffer[1]=0xda;
+	Write_CRC_Buffer[1]=Write_Buffer[1];
+						
+	Write_Buffer[2]=0x04;
+	Write_CRC_Buffer[2]=Write_Buffer[2];  
+						
+	Write_Buffer[3]=Control_Addr;
+	Write_CRC_Buffer[3]=Write_Buffer[3];
+						
+	Write_Buffer[4]=0x60;
+	Write_CRC_Buffer[4]=Write_Buffer[4];
+						
+	Write_Buffer[5]=Control_Relay_Num+1;
+	Write_CRC_Buffer[5]=Write_Buffer[5];
+											
+	Write_Buffer[6]=Control_Relay_State;
+	Write_CRC_Buffer[6]=Write_Buffer[5];
+						
+	Write_Buffer[7]=CRC8_Check(7,Write_CRC_Buffer);	
+
+	USART1_Send_Data(Write_Buffer,8); 				
+}
+
 void USART1_Send_Data(volatile u8 *buf,u8 len)
 {
   uint8_t i=0;
-//	OS_ERR      err;	
-//	
-//	OSMutexPend ((OS_MUTEX  *)&Usart,                  //申请互斥信号量 mutex
-//							 (OS_TICK    )0,                       //无期限等待
-//							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
-//							 (CPU_TS    *)0,                       //不想获得时间戳
-//							 (OS_ERR    *)&err);                   //返回错误类型			
+	OS_ERR      err;	
+	
+	OSMutexPend ((OS_MUTEX  *)&Usart,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                       //无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型			
 	
   GPIO_SetBits(GPIOB,GPIO_Pin_5); //进入发送模式	
 	
@@ -112,10 +157,10 @@ void USART1_Send_Data(volatile u8 *buf,u8 len)
 	 while (USART_GetFlagStatus(USART1, USART_FLAG_TC) == RESET);	
   }
   GPIO_ResetBits(GPIOB,GPIO_Pin_5);	//进入接收模式	
-
-//	OSMutexPost ((OS_MUTEX  *)&Usart,                 //释放互斥信号量 mutex
-//							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
-//							 (OS_ERR    *)&err);                  //返回错误类型		
+	OSTimeDlyHMSM ( 0, 0, 0,20, OS_OPT_TIME_DLY, &err);
+	OSMutexPost ((OS_MUTEX  *)&Usart,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err);                  //返回错误类型		
 }
 
 

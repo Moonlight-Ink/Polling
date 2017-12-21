@@ -14,6 +14,7 @@ uint8_t tat4[6]={0},tat5[6]={0},tat6[4]={0};
 
 
 
+
 uint8_t repeat=0;
 
 struct NODE *NodeCreat(void)
@@ -40,49 +41,44 @@ struct NODE *NodeCreat(void)
 }
 
 
-void Query_Node(uint8_t Addr)
+void Write_Check_Node_Relay_Status_Process(uint8_t Write_Process_Addr,uint8_t Write_Process_Num,uint8_t Write_Process_State)
+{
+   Node *Write_Cur=Head->Next;
+	 Node *Write_Pre=Head;	
+   
+	uint8_t Cmd_Write_State = (Write_Process_State == 0x02?0x10:0x00);
+	
+	
+	 while(Write_Cur)
+	 {
+		 if(Write_Cur->data.addr == Write_Process_Addr)
+		 {
+		   if(Write_Cur->data.Relay_State[Write_Process_Num] != Cmd_Write_State)
+			 {
+			   Write_Cur->data.Relay_State[Write_Process_Num] = Cmd_Write_State;		 
+				 Updata_Cjson(Write_Process_Num,0x02,Write_Cur->data.Relay_State[Write_Process_Num],Write_Cur->data.addr);					 
+			 }
+		  Write_Pre = Write_Cur;
+		  Write_Cur = Write_Cur->Next; 		 		 
+		 }	 
+	 }
+}
+
+void Write_Check_Node_Relay_Status(uint8_t Write_Addr,uint8_t Write_Num,uint8_t Write_State)
 {
 	OS_ERR      err;	
 	
-	uint8_t i = 0,Cnt = 0;
-	uint8_t IO_Channel[6] = {0};
-	uint8_t IO_State[6] = {0};
-	uint8_t Relay_State[4] = {0};
-	Node *Que_Cur=Head->Next;
-	Node *Que_Pre=Head;
-	
 	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
-							 (OS_TICK    )0,                       //无期限等待
+							 (OS_TICK    )0,                  
+
+	//无期限等待
 							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
 							 (CPU_TS    *)0,                       //不想获得时间戳
 							 (OS_ERR    *)&err);                   //返回错误类型		
 	
+ Write_Check_Node_Relay_Status_Process(Write_Addr,Write_Num,Write_State);
 	
-	while(Que_Cur)
-	{
-    if(Que_Cur->data.addr ==Addr)
-    {
-			for(i=0;i<6;i++)
-			{
-				if(Que_Cur->data.IO_Enable[i] == 0x10)
-				{
-					IO_Channel[Cnt] = i;
-					IO_State[Cnt] = Que_Cur->data.IO_Triggle[i];
-					Cnt++;
-				}
-		  }
-			
-      for(i=0;i<Que_Cur->data.Type;i++)
-			{
-			  Relay_State[i] = Que_Cur->data.Relay_State[i];			
-			}
-			Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Que_Cur->data.Type,Que_Cur->data.addr);					
-			break;
-    }
-		Que_Pre=Que_Cur;
-		Que_Cur=Que_Cur->Next; 
-  }
-	
+
 	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
 							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
 							 (OS_ERR    *)&err); 				
@@ -90,63 +86,141 @@ void Query_Node(uint8_t Addr)
 }
 
 
-void Insert_Node(uint8_t *Insert_Temp)
+
+void Query_Node_Process(uint8_t Query_Process_Addr)
+{
+	 uint8_t Query_Num = 0;
+	 uint8_t Query_Cnt = 0;
+	 uint8_t Query_IO_Channel[6] = {0};
+	 uint8_t Query_IO_State[6] = {0};
+	 uint8_t Query_Relay_State[4] = {0};
+	 
+	 Node *Que_Cur=Head->Next;
+	 Node *Que_Pre=Head;	 
+	 
+	 while(Que_Cur)
+	 {
+		if(Que_Cur->data.addr == Query_Process_Addr)
+		{		
+			for(Query_Num = 0;Query_Num < 6;Query_Num++)
+			{
+				if(Que_Cur->data.IO_Enable[Query_Num])          //IO被使用了
+				{
+					Query_IO_Channel[Query_Cnt] = Query_Num;
+					Query_IO_State[Query_Cnt] = Que_Cur->data.IO_Triggle[Query_Num];
+					Query_Cnt++;
+				}			
+			}
+			
+			for(Query_Num = 0;Query_Num < Que_Cur->data.Type;Query_Num++)
+			{
+			 Query_Relay_State[Query_Num] = Que_Cur->data.Relay_State[Query_Num];			
+			}	
+			
+	    Reort_Cjson(Query_IO_Channel,Query_IO_State,Query_Cnt,Query_Relay_State,Que_Cur->data.Type,Que_Cur->data.addr);		
+			
+		  break;
+		}
+		
+		Que_Pre=Que_Cur;
+		Que_Cur=Que_Cur->Next; 		 
+	 }
+}
+
+void Query_Node(uint8_t Query_Addr)
 {
 	OS_ERR      err;	
 	
-	uint8_t i=0,Cnt=0;
+
 	
-	uint8_t IO_Channel[6]={0};
-	uint8_t IO_State[6]={0};
-	uint8_t Relay_State[4]={0};
+	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+							 (OS_TICK    )0,                  
+
+	//无期限等待
+							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+							 (CPU_TS    *)0,                       //不想获得时间戳
+							 (OS_ERR    *)&err);                   //返回错误类型		
 	
+  Query_Node_Process(Query_Addr);
+	
+
+	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+							 (OS_ERR    *)&err); 				
+	
+}
+
+void Insert_Report(Node *Insert_Report)
+{
+	 uint8_t Insert_Num = 0;
+	 uint8_t Cnt = 0;
+	 uint8_t Insert_IO_Channel[6] = {0};
+	 uint8_t Insert_IO_State[6] = {0};
+	 uint8_t Insert_Relay_State[4] = {0};
+	
+  for(Insert_Num = 0;Insert_Num < 6;Insert_Num++)
+	{
+	  if(Insert_Report->data.IO_Enable[Insert_Num])          //IO被使用了
+		{
+		  Insert_IO_Channel[Cnt] = Insert_Num;
+			Insert_IO_State[Cnt] = Insert_Report->data.IO_Triggle[Insert_Num];
+			Cnt++;
+		}
+	
+	}
+	for(Insert_Num = 0;Insert_Num < Insert_Report->data.Type;Insert_Num++)
+	{
+	 Insert_Relay_State[Insert_Num] = Insert_Report->data.Relay_State[Insert_Num];
+	
+	}
+
+	Reort_Cjson(Insert_IO_Channel,Insert_IO_State,Cnt,Insert_Relay_State,Insert_Report->data.Type,Insert_Report->data.addr);	
+}
+
+
+void Insert_Node_Process(uint8_t *Insert_Process_Temp)
+{
 	Node *Insert_Cur=Head->Next;
 	Node *Insert_Pre=Head;
 
 	Node *Insert;
+	
 	Insert = (Node*)malloc (sizeof(Node));
 	
-	Insert->data=Array_to_structure(Insert_Temp);
+	Insert->data=Array_to_structure(Insert_Process_Temp);
+  Insert->data.Offline_Cnt = 0;
+	
+  while(Insert_Cur)
+	{
+    Insert_Pre=Insert_Cur;
+	  Insert_Cur=Insert_Cur->Next;
+  }	
+	Insert->Next=Insert_Pre->Next;
+  Insert_Pre->Next=Insert;
 
+
+	Join_Cjson(Insert->data.addr);
 	
-	
+	Insert_Report(Insert);
+}
+
+
+void Insert_Node(uint8_t *Insert_Temp)
+{
+	OS_ERR      err;	
+		
 	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
 							 (OS_TICK    )0,                       //无期限等待
 							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
 							 (CPU_TS    *)0,                       //不想获得时间戳
 							 (OS_ERR    *)&err);                   //返回错误类型			
 	
-	while(Insert_Cur)
-	{
-    Insert_Pre=Insert_Cur;
-	  Insert_Cur=Insert_Cur->Next;
-  }	
-		Insert->Next=Insert_Pre->Next;
-		Insert_Pre->Next=Insert;
-
-	
-	for(i=0;i<6;i++)
-  {			
-		if(Insert->data.IO_Enable[i])
-		{
-			IO_Channel[Cnt]=i;
-			IO_State[Cnt]=Insert->data.IO_Triggle[i];
-			Cnt++;			
-		}
-	} 
-
-  for(i=0;i<Insert->data.Type;i++)
-	{
-		 Relay_State[i]=Insert->data.Relay_State[i];			
-	}  
-			
-	Creat_Cjson_Join(IO_Channel,IO_State,Cnt,Relay_State,Insert->data.Type,Insert->data.addr);
+  Insert_Node_Process(Insert_Temp);
 	
 	
 	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
 							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
 							 (OS_ERR    *)&err); 					
-//      Print_Node();		
 }
 
 
@@ -169,7 +243,7 @@ void Delete_Node(uint8_t address)
 	{
     if(Cur->data.addr ==address)
     {
-			if(Cur->data.Offline_Cnt>3)
+			if(Cur->data.Offline_Cnt>5)
 			{
 				Pre->Next=Cur->Next;
         free(Cur);
@@ -179,6 +253,7 @@ void Delete_Node(uint8_t address)
 			else
 			{
 			  Cur->data.Offline_Cnt++;
+				test1 =  Cur->data.Offline_Cnt;
 			}
 			break;
     }
@@ -196,38 +271,46 @@ void Delete_Node(uint8_t address)
  
 }
 
-uint8_t Find_Node(uint8_t address)
+
+uint8_t Find_Node_Process(uint8_t Find_Node_Addr)
+{
+  Node *Find_Cur=Head->Next;
+	
+	while(Find_Cur)
+	{
+	  if(Find_Cur->data.addr == Find_Node_Addr)
+		{
+		  return 1;		
+		}
+		Find_Cur = Find_Cur->Next;
+	}
+	return 0;
+}
+
+uint8_t Find_Node(uint8_t Find_Addr)
 {
 	OS_ERR      err;	
-	
-  Node *Cur=Head->Next;
 
-	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
-							 (OS_TICK    )0,                       //无期限等待
-							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
-							 (CPU_TS    *)0,                       //不想获得时间戳
-							 (OS_ERR    *)&err);                   //返回错误类型		
+	 OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
+								(OS_TICK    )0,                       //无期限等待
+								(OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
+								(CPU_TS    *)0,                       //不想获得时间戳
+								(OS_ERR    *)&err);                   //返回错误类型		
 
-	
-	while(Cur)
-	{
-	  if(Cur->data.addr ==address)
-		{
-			
-	    OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
-							     (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
-							     (OS_ERR    *)&err); 							
-		 return 1;		
-		}
-		Cur = Cur->Next;
-	}
-
-
-	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
-							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
-							 (OS_ERR    *)&err); 				
-	
-	return 0;
+	 if(Find_Node_Process(Find_Addr))
+	 {
+		 OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+								  (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+								  (OS_ERR    *)&err); 				 
+		 return 1;
+	 }
+	 else
+	 {
+		 OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
+								  (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
+								  (OS_ERR    *)&err); 					 
+		 return 0;
+	 }
 }
 
 
@@ -252,127 +335,94 @@ uint8_t Find_Node(uint8_t address)
 // 	Print_Node();
 // }
 
-void Updata_Node(uint8_t *Temp)
+
+void Check_Node_Statues_Process(uint8_t *Check_Node_Process_Temp)
+{
+	uint8_t Check_Num ;
+	Data Check_Node = Array_to_structure(Check_Node_Process_Temp);
+	
+  Node *Check_Cur=Head->Next;
+	Node *Check_Pre=Head; 
+
+  while(Check_Cur)
+	{
+    if(Check_Cur->data.addr == Check_Node.addr)
+		{			
+			Check_Cur->data.Offline_Cnt=0;
+			Creat_Cjson_Heartbeat(0);
+			for(Check_Num =0;Check_Num<6;Check_Num++)
+			{						
+				if(Check_Cur->data.IO_Enable[Check_Num] != Check_Node.IO_Enable[Check_Num]) //"哪个IO是否使用"的状态不一致
+				{					
+							if(Check_Cur->data.IO_Enable[Check_Num]) //以前这个IO是使用，那么现在不用了,准备"IO离线上报"--------------------------------------------------------------------leave
+							{                                          
+								Check_Cur->data.IO_Enable[Check_Num] = Check_Node.IO_Enable[Check_Num];
+								Check_Cur->data.IO_Triggle[Check_Num] = Check_Node.IO_Triggle[Check_Num];
+								
+								Leave_Cjson(Check_Num,Check_Cur->data.IO_Triggle[Check_Num],Check_Cur->data.addr);//哪个channel,该channel的状态															
+							}
+							
+							
+							else   //以前这个IO不使用，那么现在启用了,准备"发现新IO上报"---------------------------discovery
+							{
+								Check_Cur->data.IO_Enable[Check_Num] = Check_Node.IO_Enable[Check_Num];
+								Check_Cur->data.IO_Triggle[Check_Num] = Check_Node.IO_Triggle[Check_Num];
+								
+								Discovery_Cjson(Check_Num,Check_Cur->data.IO_Triggle[Check_Num],Check_Cur->data.addr);//哪个channel,该channel的状态								
+							}
+						
+				}
+				
+				else                      //以前和现在的IO是否使能状态一致     
+       	{
+				   if(Check_Cur->data.IO_Enable[Check_Num])     //这个IO正在使用中。。。。
+					 {
+					    if(Check_Cur->data.IO_Triggle[Check_Num] != Check_Node.IO_Triggle[Check_Num]) //这个IO的状态前后不一致，则启动IO状态变化上报----updata,0x01代表是IO
+							{
+							  Check_Cur->data.IO_Triggle[Check_Num] = Check_Node.IO_Triggle[Check_Num];
+							
+								Updata_Cjson(Check_Num,0x01,Check_Cur->data.IO_Triggle[Check_Num],Check_Cur->data.addr);
+							}
+					 }
+				}							
+			}		
+
+			for(Check_Num =0;Check_Num<Check_Cur->data.Type;Check_Num++)
+			{	
+				 if(Check_Cur->data.Relay_State[Check_Num] != Check_Node.Relay_State[Check_Num])     //继电器以前和现在的状态不一致，那么启动Relay状态变化上报-----updata,0x02代表继电器
+				 { 
+					 Check_Cur->data.Relay_State[Check_Num] = Check_Node.Relay_State[Check_Num];
+				 
+					 Updata_Cjson(Check_Num,0x02,Check_Cur->data.Relay_State[Check_Num],Check_Cur->data.addr);				 
+				 }		
+			}				
+			
+			break;
+
+    }	
+	  Check_Pre=Check_Cur;
+		Check_Cur=Check_Cur->Next;	
+  }
+}
+
+void Check_Node_Status(uint8_t *Check_Node_Temp)
 {
 	OS_ERR      err;	
-	
-  uint8_t i=0;
-	uint8_t Cnt=0;
-	Data Comp;
-	
-	
-	uint8_t IO_Channel[6]={0};
-	uint8_t IO_State[6]={0};
-	uint8_t Change_IO_Cnt=0;
-	uint8_t Relay_State[4]={0};
-	uint8_t Change_Relay_Cnt=0;
-	
-	uint8_t Discovery_Channel[6]={0};
-	uint8_t Discovery_State[6]={0};
-	uint8_t Discovery_Cnt=0;
-	
-	uint8_t Offline_Channel[6]={0};
-	uint8_t Offline_Cnt=0;
-	
-  Node *Cpa_Cur=Head->Next;
-	Node *Cpa_Pre=Head;
-  
-	Comp=Array_to_structure(Temp);
-
-//	memcpy(tat1,Comp.IO_Enable,6);
-//	memcpy(tat2,Comp.IO_Triggle,6);
-//	memcpy(tat3,Comp.Relay_State,4);	
 	
 	OSMutexPend ((OS_MUTEX  *)&List,                  //申请互斥信号量 mutex
 							 (OS_TICK    )0,                       //无期限等待
 							 (OS_OPT     )OS_OPT_PEND_BLOCKING,    //如果申请不到就堵塞任务
 							 (CPU_TS    *)0,                       //不想获得时间戳
-							 (OS_ERR    *)&err);                   //返回错误类型			
+							 (OS_ERR    *)&err);                   //返回错误类型		
 	
-	while(Cpa_Cur)
-	{
-    if(Cpa_Cur->data.addr==Comp.addr)
-		{
-			
-//	memcpy(tat4,Cpa_Cur->data.IO_Enable,6);
-//	memcpy(tat5,Cpa_Cur->data.IO_Triggle,6);
-//	memcpy(tat6,Cpa_Cur->data.Relay_State,4);			
-			
-			Cpa_Cur->data.Offline_Cnt=0;
-			
-			for(i=0;i<6;i++)
-			{
-		  	if(Cpa_Cur->data.IO_Enable[i]==0x10) //若链表io控制端是“使能”状态
-				{	
-					 if(Comp.IO_Enable[i]==0x10)        //新的io控制端也是"使能状态"，且io状态与链表一致，则不需要更新数据，否则更新链表中io状态，并上报
-					 {
-						 if(Cpa_Cur->data.IO_Triggle[i] != Comp.IO_Triggle[i])
-						 {
-							 Cpa_Cur->data.IO_Triggle[i]=Comp.IO_Triggle[i];								
-							 Change_IO_Cnt++;							   
-						 }					 
-					 }
-					 else                                       //若新的io是"失能"状态，则更新链表的io控制状态为"失能"状态，并更新链表io状态,并上报offline
-					 {
-						 Cpa_Cur->data.IO_Enable[i]=Comp.IO_Enable[i];
-						 Cpa_Cur->data.IO_Triggle[i]=Comp.IO_Triggle[i];
-					   Offline_Cnt++;
-					 }		
-				}	
-        else                                    //若链表中io控制端是"失能"状态
-				{
-					if(Comp.IO_Enable[i]==0x10)        //新的io控制端是"使能"状态，则更新链表的io控制端状态为"使能"，更新链表io状态，并上报discovery
-					{
-					   Cpa_Cur->data.IO_Enable[i]=Comp.IO_Enable[i];
-						 Cpa_Cur->data.IO_Triggle[i]=Comp.IO_Triggle[i];
-						 Discovery_Channel[Discovery_Cnt]=i;
-						 Discovery_State[Discovery_Cnt]=Cpa_Cur->data.IO_Triggle[i];
-					   Discovery_Cnt++;	
-					}
-				
-				}
-				
-				if(Cpa_Cur->data.IO_Enable[i])
-				{
-					 IO_Channel[Cnt]=i;
-					 IO_State[Cnt]=Cpa_Cur->data.IO_Triggle[i];
-					 Cnt++;			
-				}					
-			}		
-
-			for(i=0;i<Cpa_Cur->data.Type;i++)
-			{
-			  if(Cpa_Cur->data.Relay_State[i] != Comp.Relay_State[i])  //链表中继电器状态和新的继电器状态不一致，则更新继电器状态，并上报
-				{
-				  Cpa_Cur->data.Relay_State[i] = Comp.Relay_State[i];
-					Change_Relay_Cnt++;				
-				}
-        Relay_State[i]=   Cpa_Cur->data.Relay_State[i];	
-			}
-
-			
-			if(Discovery_Cnt)
-			{		
-        Create_Cjson_Discovery(Discovery_Channel,Discovery_State,Discovery_Cnt,Cpa_Cur->data.addr);				
-			}
-		  if(Change_IO_Cnt || Offline_Cnt || Discovery_Cnt)
-			{				
-			  Creat_Cjson_Report(IO_Channel,IO_State,Cnt,Relay_State,Cpa_Cur->data.Type,Cpa_Cur->data.addr);					
-			}
-			break;
-
-    }	
-	  Cpa_Pre=Cpa_Cur;
-		Cpa_Cur=Cpa_Cur->Next;	
-  }
-	
+  Check_Node_Statues_Process(Check_Node_Temp);
 	
 	OSMutexPost ((OS_MUTEX  *)&List,                 //释放互斥信号量 mutex
 							 (OS_OPT     )OS_OPT_POST_NONE,       //进行任务调度
 							 (OS_ERR    *)&err); 					
 	
-	
 }
+
 
 void Print_Node(void)
 {
@@ -412,7 +462,6 @@ Data Array_to_structure(uint8_t *Trans_Temp)
 	
 	Trans.addr=*(Trans_Temp+3);
 	Trans.Type=*(Trans_Temp+5);
-	Trans.Offline_Cnt=0;
 	
 //	test1=*(Trans_Temp+6);
 //	test2=*(Trans_Temp+7);

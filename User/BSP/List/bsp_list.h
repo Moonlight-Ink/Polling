@@ -28,24 +28,29 @@ extern Node *Head;
 struct NODE *NodeCreat(void);
 
 void Insert_Node(uint8_t *Insert_Temp);
-uint8_t Find_Node(uint8_t address);
+void Insert_Node_Process(uint8_t *Insert_Process_Temp);
+void Insert_Report(Node *Insert_Report);
+
+uint8_t Find_Node(uint8_t Find_Addr);
+uint8_t Find_Node_Process(uint8_t Find_Node_Addr);
+
+
 void Delete_Node(uint8_t address);
 
-void Updata_Node(uint8_t *Temp);
+void Check_Node_Status(uint8_t *Check_Node_Temp);
+void Check_Node_Statues_Process(uint8_t *Check_Node_Process_Temp);
 
 Data Array_to_structure(uint8_t *Trans_Temp);
 
 
 void Print_Node(void);
 
-void Query_Node(uint8_t Addr);
+void Query_Node(uint8_t Query_Addr);
+void Query_Node_Process(uint8_t Query_Process_Addr);
 
 
-
-
-
-
-
+void Write_Check_Node_Relay_Status(uint8_t Write_Addr,uint8_t Write_Num,uint8_t Write_State);
+void Write_Check_Node_Relay_Status_Process(uint8_t Write_Process_Addr,uint8_t Write_Process_Num,uint8_t Write_Process_State);
 
 
 

@@ -30,6 +30,7 @@
 .\objects\bsp_usart1.o: ..\..\Libraries\FWlib\inc\stm32f10x_wwdg.h
 .\objects\bsp_usart1.o: ..\..\Libraries\FWlib\inc\misc.h
 .\objects\bsp_usart1.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\bsp_usart1.o: ..\..\User\APP\includes.h
 .\objects\bsp_usart1.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
 .\objects\bsp_usart1.o: F:\Program Files\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
@@ -50,8 +51,8 @@
 .\objects\bsp_usart1.o: ..\..\User\BSP\led\bsp_led.h
 .\objects\bsp_usart1.o: ..\..\User\BSP\Key\bsp_key.h
 .\objects\bsp_usart1.o: ..\..\User\BSP\List\bsp_list.h
-.\objects\bsp_usart1.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\bsp_usart1.o: ..\..\User\BSP\w5500\W5500.h
+.\objects\bsp_usart1.o: ..\..\User\BSP\cjson\bsp_cjson.h
 .\objects\bsp_usart1.o: ..\..\User\uCOS-III\Source\os.h
 .\objects\bsp_usart1.o: ..\..\User\APP\os_cfg.h
 .\objects\bsp_usart1.o: ..\..\User\uCOS-III\Source\os_type.h

@@ -48,3 +48,4 @@
 .\objects\bsp.o: ..\..\User\BSP\List\bsp_list.h
 .\objects\bsp.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\bsp.o: ..\..\User\BSP\w5500\W5500.h
+.\objects\bsp.o: ..\..\User\BSP\cjson\bsp_cjson.h

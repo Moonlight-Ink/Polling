@@ -52,9 +52,8 @@ OS_SEM  SemOfPoll;
 
  Node *Head;
 
-	uint8_t Device_Exist=0;
-	uint8_t Find_Device=0;
-	uint8_t Addr=0x01;
+ uint8_t Device_Exist=0;
+ uint8_t Find_Device=0;
 /*
 *********************************************************************************************************
 *                                                 TCB
@@ -64,7 +63,7 @@ OS_SEM  SemOfPoll;
 static OS_TCB AppTaskStartTCB;    //任务控制块
  OS_TCB AppTaskUSART1CheckTCB;
 static OS_TCB AppTaskTCPServerTCB;
-//static OS_TCB AppTaskPollDeviceTCB;
+ OS_TCB AppTaskPollDeviceTCB;
 
 
 /*
@@ -76,7 +75,7 @@ static OS_TCB AppTaskTCPServerTCB;
 static  CPU_STK  AppTaskStartStk[APP_TASK_START_STK_SIZE];       //任务堆栈
 static  CPU_STK  AppTaskUSART1CheckStk[ APP_TASK_USART1_CHECK_SIZE ];
 static  CPU_STK  AppTaskTCPServerStk[ APP_TASK_TCP_SERVERT_SIZE ];
-//static  CPU_STK  AppTaskTCPPollDeviceStk[ APP_TASK_TCP_POLL_DEVICE_SIZE ];
+static  CPU_STK  AppTaskTCPPollDeviceStk[ APP_TASK_TCP_POLL_DEVICE_SIZE ];
 
 
 /*
@@ -88,7 +87,7 @@ static  CPU_STK  AppTaskTCPServerStk[ APP_TASK_TCP_SERVERT_SIZE ];
 static  void  AppTaskStart  (void *p_arg);               //任务函数声明
 static  void  AppTaskUSART1Check (void *p_arg);
 static  void  AppTaskTCPServer (void *p_arg);
-//static  void  AppTaskTCPPollDevice (void *p_arg);
+static  void  AppTaskTCPPollDevice (void *p_arg);
 /*
 *********************************************************************************************************
 *                                                main()
@@ -209,35 +208,35 @@ static  void  AppTaskStart (void *p_arg)
                  (OS_ERR     *)&err);     
 	
   						 
-     /*创建轮询查询Usart数据是否接收完毕任务*/		
-    OSTaskCreate((OS_TCB     *)&AppTaskUSART1CheckTCB,                             //任务控制块地址
-                 (CPU_CHAR   *)"App_Task_Check_Device",                             //任务名称
-                 (OS_TASK_PTR ) AppTaskUSART1Check,                                //任务函数
-                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
-                 (OS_PRIO     ) APP_TASK_USART1_CHECK_PRIO,                         //任务的优先级
-                 (CPU_STK    *)&AppTaskUSART1CheckStk[0],                          //任务堆栈的基地址
-                 (CPU_STK_SIZE) APP_TASK_USART1_CHECK_SIZE / 10,                //任务堆栈空间剩下1/10时限制其增长
-                 (CPU_STK_SIZE) APP_TASK_USART1_CHECK_SIZE,                     //任务堆栈空间（单位：sizeof(CPU_STK)）
-                 (OS_MSG_QTY  ) 50u,                                        //任务可接收的最大消息数
-                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
-                 (void       *) 0,                                          //任务扩展（0表不扩展）
-                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
-                 (OS_ERR     *)&err);                                       //返回错误类型
-
 //     /*创建轮询查询Usart数据是否接收完毕任务*/		
-//    OSTaskCreate((OS_TCB     *)&AppTaskPollDeviceTCB,                             //任务控制块地址
-//                 (CPU_CHAR   *)"App_Task_Poll_Device",                             //任务名称
-//                 (OS_TASK_PTR ) AppTaskTCPPollDevice,                                //任务函数
+//    OSTaskCreate((OS_TCB     *)&AppTaskUSART1CheckTCB,                             //任务控制块地址
+//                 (CPU_CHAR   *)"App_Task_Check_Device",                             //任务名称
+//                 (OS_TASK_PTR ) AppTaskUSART1Check,                                //任务函数
 //                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
-//                 (OS_PRIO     ) APP_TASK_POLL_DEVICE_PRIO,                         //任务的优先级
-//                 (CPU_STK    *)&AppTaskTCPPollDeviceStk[0],                          //任务堆栈的基地址
-//                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE / 10,                //任务堆栈空间剩下1/10时限制其增长
-//                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE,                     //任务堆栈空间（单位：sizeof(CPU_STK)）
+//                 (OS_PRIO     ) APP_TASK_USART1_CHECK_PRIO,                         //任务的优先级
+//                 (CPU_STK    *)&AppTaskUSART1CheckStk[0],                          //任务堆栈的基地址
+//                 (CPU_STK_SIZE) APP_TASK_USART1_CHECK_SIZE / 10,                //任务堆栈空间剩下1/10时限制其增长
+//                 (CPU_STK_SIZE) APP_TASK_USART1_CHECK_SIZE,                     //任务堆栈空间（单位：sizeof(CPU_STK)）
 //                 (OS_MSG_QTY  ) 50u,                                        //任务可接收的最大消息数
 //                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
 //                 (void       *) 0,                                          //任务扩展（0表不扩展）
 //                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
 //                 (OS_ERR     *)&err);                                       //返回错误类型
+
+     /*创建轮询查询Usart数据是否接收完毕任务*/		
+    OSTaskCreate((OS_TCB     *)&AppTaskPollDeviceTCB,                             //任务控制块地址
+                 (CPU_CHAR   *)"App_Task_Poll_Device",                             //任务名称
+                 (OS_TASK_PTR ) AppTaskTCPPollDevice,                                //任务函数
+                 (void       *) 0,                                          //传递给任务函数（形参p_arg）的实参
+                 (OS_PRIO     ) APP_TASK_POLL_DEVICE_PRIO,                         //任务的优先级
+                 (CPU_STK    *)&AppTaskTCPPollDeviceStk[0],                          //任务堆栈的基地址
+                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE / 10,                //任务堆栈空间剩下1/10时限制其增长
+                 (CPU_STK_SIZE) APP_TASK_TCP_POLL_DEVICE_SIZE,                     //任务堆栈空间（单位：sizeof(CPU_STK)）
+                 (OS_MSG_QTY  ) 50u,                                        //任务可接收的最大消息数
+                 (OS_TICK     ) 0u,                                         //任务的时间片节拍数（0表默认值OSCfg_TickRate_Hz/10）
+                 (void       *) 0,                                          //任务扩展（0表不扩展）
+                 (OS_OPT      )(OS_OPT_TASK_STK_CHK | OS_OPT_TASK_STK_CLR), //任务选项
+                 (OS_ERR     *)&err);                                       //返回错误类型
 
 
 								 
@@ -253,120 +252,216 @@ static  void  AppTaskStart (void *p_arg)
 *********************************************************************************************************
 */
 
-//static  void  AppTaskTCPPollDevice( void * p_arg )
-//{
-//	(void)p_arg;
+static  void  AppTaskTCPPollDevice( void * p_arg )
+{
+	OS_ERR      err;
+	CPU_SR_ALLOC();
+	uint8_t Poll_Addr = 0x01;
+	(void)p_arg;
 
-//	while (DEF_TRUE) 
-//	{ 
-//	}
-//}
+	while (DEF_TRUE) 
+	{ 
+		if(Poll_Addr>0x10)
+		{
+			Poll_Addr=1;
+		}	
+		
+    Check_Device_Cmd_Buffer(Poll_Addr);
+		
+		OSTaskSemPend ((OS_TICK   )50,                     //无期限等待
+									 (OS_OPT    )OS_OPT_PEND_BLOCKING,  //如果信号量不可用就等待
+									 (CPU_TS   *)0,                   //获取信号量被发布的时间戳
+									 (OS_ERR   *)&err);                 //返回错误类型		
+
+		OS_CRITICAL_ENTER();                                       //?????,?????????    
+    
+		if(USART_Rx_Count)                              //串口收到cmd为0x20的回复数据
+		{
+			if(USART_Rx_Buffer[3] == Poll_Addr)
+			{
+		    if(Find_Node(Poll_Addr))
+				{
+				  Check_Node_Status(USART_Rx_Buffer);							
+				}
+				else
+				{
+				  Insert_Node(USART_Rx_Buffer); 								
+				}
+        Poll_Addr++;				
+			}
+			else
+			{
+				if(Find_Node(USART_Rx_Buffer[3]))
+				{
+				  Check_Node_Status(USART_Rx_Buffer);			
+				}
+			}
+		}
+		else
+		{
+		  if(Find_Node(Poll_Addr))
+      {
+		    Delete_Node(Poll_Addr);	
+			}				
+        Poll_Addr++;				
+		}
+//		
+//		Device_Exist=Find_Node(Poll_Addr);		
+// 	   
+//		 
+//		 
+//    if(USART_Rx_Buffer[3] == Poll_Addr)
+//		{
+//	    if(Device_Exist)
+//			{
+//       Check_Node_Status(USART_Rx_Buffer);				
+//			}
+//			else
+//			{
+//			  Insert_Node(USART_Rx_Buffer); 		
+//			}					
+//		}
+//		else
+//		{
+//			if(Device_Exist)
+//			{
+//		    Delete_Node(Poll_Addr);							
+//			}
+//		}
+//		if(USART_Rx_Buffer[3] == Query_Address)
+//    {
+//		 Query_Address = 0;
+//		}
+//    Find_Device = 0;	
+		memset(USART_Rx_Buffer,0,USART_Rx_Count);
+		USART_Rx_Count = 0;
+		
+//		Poll_Addr++;	
+
+
+//		
+//		if(Find_Device)
+//		{
+//		  if(Device_Exist)
+//			{
+//       Check_Node_Status(USART_Rx_Buffer);				
+//			}
+//			else
+//			{
+//			  Insert_Node(USART_Rx_Buffer); 		
+//			}
+//      Find_Device = 0;	
+//			memset(USART_Rx_Buffer,0,USART_Rx_Count);
+//			USART_Rx_Count = 0;
+//		}
+//		else
+//		{
+//			if(Device_Exist)
+//			{
+//		    Delete_Node(Addr);							
+//			}
+//		}		
+//		Addr++;	
+		OS_CRITICAL_EXIT();                                        //?????			
+	}
+}
 
 
 
 static  void  AppTaskUSART1Check( void * p_arg )
 {
 	OS_ERR      err;
-	CPU_SR_ALLOC();
-	
-//	uint8_t i=0;
 
-	uint8_t Check_Temp[20]={0};
-	
 	(void)p_arg;
 			 
 	while (DEF_TRUE) 
 	{      
-			if(Addr>0x3f)
-			{
-			 Addr=0;
-			}
-      Device_Exist=Find_Node(Addr);
-			
-			Check_Temp[0]=0xad;
-			Check_Temp[1]=0xda;
-			Check_Temp[2]=0x02;
-			Check_Temp[3]=Addr;
-			Check_Temp[4]=0x20;
-			Check_Temp[5]=0x03;
-		 	
-      USART1_Send_Data(Check_Temp,6);
-	
-		  OSTaskSemPend ((OS_TICK   )3000,                     //无期限等待
-									   (OS_OPT    )OS_OPT_PEND_BLOCKING,  //如果信号量不可用就等待
-									   (CPU_TS   *)0,                   //获取信号量被发布的时间戳
-									   (OS_ERR   *)&err);                 //返回错误类型			
-//	  	OSTimeDlyHMSM ( 0, 0, 3,0, OS_OPT_TIME_DLY, &err);	
+    	
 
-			
-		OS_CRITICAL_ENTER();                                       //进入临界段，避免串口打印被打断
+	  OSTaskSemPend ((OS_TICK   )0,                     //无期限等待
+									 (OS_OPT    )OS_OPT_PEND_BLOCKING,  //如果信号量不可用就等待
+									 (CPU_TS   *)0,                   //获取信号量被发布的时间戳
+									 (OS_ERR   *)&err);                 //返回错误类型	
+
+	  OSTimeDlyHMSM ( 0, 0, 0,10, OS_OPT_TIME_DLY, &err);					
+
+
+
 		
-//		if(USART_Rx_Finsh)
-//		{
-//		  if(USART_Rx_Buffer[4] == 0x20)
+		if(USART_Rx_Buffer[4] == 0x20)
+		{
+//			if(USART_Rx_Buffer[3] == 	Poll_Addr)
 //			{
-//			  if(USART_Rx_Buffer[3] == 	Addr)
+				if(!Find_Device)
+				{
+					Find_Device = 1;
+				}
+				
+//				if(Device_Exist)
 //				{
-//				  if(Device_Exist)
-//					{
-//            Updata_Node(USART_Rx_Buffer);											
-//					}
-//					else
-//					{
-//            Insert_Node(USART_Rx_Buffer); 						
-//					}
+//          Updata_Node(USART_Rx_Buffer);											
 //				}
 //				else
 //				{
-//					if(Device_Exist)
-//					{
-//		        Delete_Node(Addr);							
-//					}
+//          Insert_Node(USART_Rx_Buffer); 						
 //				}
-//			}
+//			  
+				OSTaskSemPost((OS_TCB  *)&AppTaskTCPPollDevice,                              //目标任务
+									  	(OS_OPT   )OS_OPT_POST_NONE,                             //没选项要求
+										  (OS_ERR  *)&err);   						
+			}
 //			else
 //			{
-//			
-//			
+//				if(Device_Exist)
+//				{
+//		      Delete_Node(Addr);							
+//				}
 //			}
-//			memset(USART_Rx_Buffer,0,USART_Rx_Count);
-//			USART_Rx_Count = 0;
-//			USART_Rx_Finsh = 0;
 //		}
+		else
+		{
+			
+			
+		}
+
+			
+
+
+ 		
 //		
 //		
 ////		Find_Device=(*(Msg+3)==Addr?1:0);
 ////		
 ////		
-    if(Device_Exist)
-		{ 
-			if(Find_Device)        //设备存在于链表并且查找有回复
-			{
-			//对比设备的状态信息，看看是否有新IO添加、新状态更新			
-        Updata_Node(USART_Rx_Buffer);		
-			}
-			else                 //设备存在于链表，但是查找没有回复
-			{
-			//对设备进行offline操作，删除节点
-		    Delete_Node(Addr);		
-			}
-		  
-		}
-		else 
-		{
-			if(Find_Device)    //设备不存在于链表，但是查找有回复
-			{
-			//这个是新的设备加入，需要插入节点，更新状态
-        Insert_Node(USART_Rx_Buffer); 	
-			}
-		}
+//    if(Device_Exist)
+//		{ 
+//			if(Find_Device)        //设备存在于链表并且查找有回复
+//			{
+//			//对比设备的状态信息，看看是否有新IO添加、新状态更新			
+//        Updata_Node(USART_Rx_Buffer);		
+//			}
+//			else                 //设备存在于链表，但是查找没有回复
+//			{
+//			//对设备进行offline操作，删除节点
+//		    Delete_Node(Addr);		
+//			}
+//		  
+//		}
+//		else 
+//		{
+//			if(Find_Device)    //设备不存在于链表，但是查找有回复
+//			{
+//			//这个是新的设备加入，需要插入节点，更新状态
+//        Insert_Node(USART_Rx_Buffer); 	
+//			}
+//		}
 
-		memset(USART_Rx_Buffer,0,USART_Rx_Count);
-		USART_Rx_Count = 0;
-		Find_Device = 0;
-		
+//		memset(USART_Rx_Buffer,0,USART_Rx_Count);
+//		USART_Rx_Count = 0;
+//		Find_Device = 0;
+//		
 		macLED2_TOGGLE();	
-		OS_CRITICAL_EXIT();                                        //退出临界段							
+//		OS_CRITICAL_EXIT();                                        //退出临界段							
 	  }
 }
 

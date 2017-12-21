@@ -53,6 +53,7 @@
 .\objects\stm32f10x_it.o: ..\..\User\BSP\List\bsp_list.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\stm32f10x_it.o: ..\..\User\BSP\w5500\W5500.h
+.\objects\stm32f10x_it.o: ..\..\User\BSP\cjson\bsp_cjson.h
 .\objects\stm32f10x_it.o: ..\..\User\uCOS-III\Source\os.h
 .\objects\stm32f10x_it.o: ..\..\User\APP\os_cfg.h
 .\objects\stm32f10x_it.o: ..\..\User\uCOS-III\Source\os_type.h

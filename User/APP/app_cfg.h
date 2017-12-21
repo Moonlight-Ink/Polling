@@ -49,9 +49,9 @@
 
 #define  APP_TASK_START_PRIO                        2            //任务优先级
 
-#define  APP_TASK_USART1_CHECK_PRIO                  3
+#define  APP_TASK_USART1_CHECK_PRIO                 3
 #define  APP_TASK_TCP_SERVER_PRIO                   3
-//#define  APP_TASK_POLL_DEVICE_PRIO                  3
+#define  APP_TASK_POLL_DEVICE_PRIO                  3
 /*
 *********************************************************************************************************
 *                                            TASK STACK SIZES
@@ -63,7 +63,7 @@
 
 #define  APP_TASK_USART1_CHECK_SIZE                  512
 #define  APP_TASK_TCP_SERVERT_SIZE                   512
-//#define  APP_TASK_TCP_POLL_DEVICE_SIZE               512
+#define  APP_TASK_TCP_POLL_DEVICE_SIZE               512
 
 /*
 *********************************************************************************************************

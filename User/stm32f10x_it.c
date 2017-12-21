@@ -168,42 +168,54 @@ void SysTick_Handler(void)
   * @param  无
   * @retval 无
   */
-extern	uint8_t Addr;
-extern	uint8_t Find_Device;
-extern  OS_TCB AppTaskUSART1CheckTCB;
+
+extern   OS_TCB AppTaskPollDeviceTCB;
+
+extern uint8_t Cmd_Control_Addr;
+extern uint8_t Cmd_Control_Response;
+
 void USART1_IRQHandler(void)
 {
   uint8_t  ch;
-	uint8_t i=0;
   OS_ERR  err;
+
 		
 	if(USART_GetITStatus(USART1,USART_IT_RXNE)!=RESET )
 	{
-		ch = USART_ReceiveData(USART1);     //获取接收到的数据
+		ch = USART_ReceiveData(USART1);    
 		Re_Temp[Re_Cnt++]=ch;
 		
 		if(Re_Temp[0]==0xad)
 		{
 			if(Re_Cnt == (Re_Temp[2]+4))
-			{
+			{		
 				if(Re_Temp[4] == 0x20)
 				{
-					if(Re_Temp[3] == 	Addr)
-					{		
-						memcpy(USART_Rx_Buffer,Re_Temp,Re_Cnt);
-						USART_Rx_Count = Re_Cnt;
-						Find_Device = 1;
-            OSTaskSemPost((OS_TCB  *)&AppTaskUSART1CheckTCB,                              //目标任务
-						              (OS_OPT   )OS_OPT_POST_NONE,                             //没选项要求
-										      (OS_ERR  *)&err);     						
-					}
-				}	
-        else
-				{
-								
+//					if(Re_Temp[3] == Addr)
+//					{
+						 if(!USART_Rx_Count)
+						 {
+							 memcpy(USART_Rx_Buffer,Re_Temp,Re_Cnt);
+							 USART_Rx_Count = Re_Cnt;
+							 
+//							 if(!Find_Device)
+//							 {
+//							   Find_Device = 1;
+//							 }
+							 
+							 OSTaskSemPost((OS_TCB  *)&AppTaskPollDeviceTCB,                              //目标任务
+										         (OS_OPT   )OS_OPT_POST_NONE,                             //没选项要求
+										         (OS_ERR  *)&err);   	
+//						 }
+					   }
+//					else if(Re_Temp[4] == 0x60)
+//					{
+//					  if(Re_Temp[3] == Cmd_Control_Addr)
+//					    Cmd_Control_Response = 1;
+//					}					
 				}					
 				memset(Re_Temp,0,Re_Cnt);
-				Re_Cnt = 0;
+				Re_Cnt = 0;			
 			}
 			else if(Re_Cnt > (Re_Temp[2]+4))
 			{

@@ -52,6 +52,7 @@
 .\objects\bsp_key.o: ..\..\User\BSP\List\bsp_list.h
 .\objects\bsp_key.o: ..\..\User\BSP\crc\bsp_crc8.h
 .\objects\bsp_key.o: ..\..\User\BSP\w5500\W5500.h
+.\objects\bsp_key.o: ..\..\User\BSP\cjson\bsp_cjson.h
 .\objects\bsp_key.o: ..\..\User\uCOS-III\Source\os.h
 .\objects\bsp_key.o: ..\..\User\APP\os_cfg.h
 .\objects\bsp_key.o: ..\..\User\uCOS-III\Source\os_type.h
